@@ -1,5 +1,4 @@
 import cv2
-import time
 import numpy as np
 import matplotlib.pyplot as plot
 
@@ -49,6 +48,18 @@ def draw_trajectory(m_trajectory, m_frame, color=(0, 255, 0)):
 
     return m_frame
 
+def lissagetrajectoire(trajectory, dist, coeff):
+    liste_diff2 = [0]
+    for i in range(1, len(trajectory)):
+        liste_diff2.append(
+            (trajectory[i][0] - trajectory[i - 1][0]) ** 2 + (trajectory[i][1] - trajectory[i - 1][1]) ** 2)
+    trajectory_corrected = []
+    for i in range(dist, len(trajectory) - dist):
+        if (trajectory[i][0] - trajectory[i - 1][0]) ** 2 + (
+                trajectory[i][1] - trajectory[i - 1][1]) ** 2 < coeff * np.mean(liste_diff2[i - dist:i + dist]):
+            trajectory_corrected.append(trajectory[i])
+    return trajectory_corrected
+
 
 background = None
 trajectory = []
@@ -90,11 +101,24 @@ for j in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 video.release()
 cv2.destroyAllWindows()
 
+trajectory_cor=lissagetrajectoire(trajectory,50,30)
+
 velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in
             range(1, len(trajectory))]
 
-plot.title("Profil de vitesse")
-plot.xlabel("Position")
-plot.ylabel("Vitesse")
-plot.plot(velocity)
+
+
+
+
+plot.figure()
+#plot.subplot(5,1,1)
+#plot.plot(lissagetrajectoire(trajectory,10,2))
+#plot.subplot(5,1,2)
+plot.plot(lissagetrajectoire(trajectory,10,3))
+#plot.subplot(5,1,3)
+#plot.plot(lissagetrajectoire(trajectory,20,30))
+#plot.subplot(5,1,4)
+#plot.plot(lissagetrajectoire(trajectory,50,1))
+#plot.subplot(5,1,5)
+#plot.plot(lissagetrajectoire(trajectory,20,1))
 plot.show()
