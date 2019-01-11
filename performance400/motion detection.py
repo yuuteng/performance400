@@ -1,7 +1,9 @@
 import cv2
 import time
+import numpy as np
 
 static_back = None
+pts = []
 video = cv2.VideoCapture('videos/V0run.MOV')
 
 for i in range(-150, 630):
@@ -9,7 +11,7 @@ for i in range(-150, 630):
     if frame is None:
         break
 
-    if i<0:
+    if i < 0:
         continue
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -35,10 +37,22 @@ for i in range(-150, 630):
 
             if cv2.contourArea(biggestContour) > 50000:
                 (x, y, w, h) = cv2.boundingRect(biggestContour)
-                xm, ym = 50, 50
                 dr = 400
-                cv2.rectangle(frame, (x + w, y), (x + w - dr, y + dr), (0, 0, 255), 3)
+                x1, y1 = x + w - dr, y + dr
+                x2, y2 = x1 + dr, y1 - dr
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
                 # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+
+                pts.append((int(x1 + dr / 2), int(y1 - dr / 2)))
+                ptsmodif = np.array(pts, 'int32')
+                ptsmodif = ptsmodif.reshape((-1, 1, 2))
+                cv2.polylines(frame, [ptsmodif], isClosed=False, color=(0, 0, 0), thickness=10, lineType=cv2.LINE_AA)
+
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                cv2.putText(frame, '   x=' + str(x1 + dr / 2) + ' y= ' + str(y1 - dr / 2),
+                            (int(x1 + dr / 2), int(y1 - dr / 2)), font,
+                            1.2,
+                            (0, 255, 0), 2, cv2.LINE_AA)
 
     # cv2.imshow("Diff Frame", diff_frame)
     # cv2.imshow("Threshold Frame", thresh_frame)
