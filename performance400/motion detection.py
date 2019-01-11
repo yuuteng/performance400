@@ -1,6 +1,7 @@
 import cv2
 import time
 import numpy as np
+import matplotlib.pyplot as plot
 
 video = cv2.VideoCapture('videos/V0run.MOV')
 FIRST_FRAME_INDEX = -150
@@ -90,15 +91,25 @@ for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 
     # cv2.imshow("Diff Frame", diff_frame)
     # cv2.imshow("Threshold Frame", thresh_frame)
-    cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
-    cv2.imshow("Color Frame", frame)
+    # cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
+    # cv2.imshow("Color Frame", frame)
 
-    key = cv2.waitKey(1)
+    # key = cv2.waitKey(1)
 
-    if key == ord('q'):
-        break
+    # if key == ord('q'):
+    #     break
 
-    time.sleep(0)
+    if np.random.rand() < 0.1:
+        print(f"{int(i / LAST_FRAME_INDEX * 100)}% done")
 
 video.release()
 cv2.destroyAllWindows()
+
+velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in
+            range(1, len(trajectory))]
+
+plot.title("Profil de vitesse")
+plot.xlabel("Position")
+plot.ylabel("Vitesse")
+plot.plot(velocity)
+plot.show()
