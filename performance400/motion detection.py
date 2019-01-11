@@ -3,7 +3,7 @@ import cv2
 import time
 
 static_back = None
-video = cv2.VideoCapture('/home/colozz/Téléchargements/run2.MOV')
+video = cv2.VideoCapture('videos/run2.MOV')
 skip = 110
 
 while video.isOpened():
