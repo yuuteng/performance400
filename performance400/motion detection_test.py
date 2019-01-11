@@ -1,10 +1,14 @@
-
 import cv2
 import time
+import numpy as np
 
 static_back = None
-video = cv2.VideoCapture('/home/colozz/Téléchargements/run2.MOV')
+video = cv2.VideoCapture('videos/run2.MOV')
 skip = 110
+
+trajectory = True
+if trajectory:
+    pts = []
 
 while video.isOpened():
     frame = video.read()[1]
@@ -28,7 +32,7 @@ while video.isOpened():
 
     contours = cv2.findContours(thresh_frame.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[1]
 
-    if len(contours) > 0:
+    if (contours is not None) & (len(contours) > 0):
         biggestContour = contours[0]
 
         for contour in contours:
@@ -38,9 +42,19 @@ while video.isOpened():
         if cv2.contourArea(biggestContour) > 10000:
             (x, y, w, h) = cv2.boundingRect(biggestContour)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+            cv2.circle(frame, (int(x + w / 2), int(y + h / 2)), 10, (255, 0, 0), 3)
+            if (trajectory):
+                pts.append((int(x + w / 2), int(y + h / 2)))
+                ptsmodif = np.array(pts, 'int32')
+                ptsmodif = ptsmodif.reshape((-1, 1, 2))
+                cv2.polylines(frame, [ptsmodif], isClosed=False, color=(0, 0, 0), thickness=10, lineType=cv2.LINE_AA)
 
-    cv2.imshow("Diff Frame", diff_frame)
-    cv2.imshow("Threshold Frame", thresh_frame)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            cv2.putText(frame, '   x=' + str(x + w) + ' y= ' + str(y + h), (int(x + w / 2), int(y + h / 2)), font, 1.2,
+                        (0, 255, 0 ), 2, cv2.LINE_AA)
+    cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
+    # cv2.imshow("Diff Frame", diff_frame)
+    # cv2.imshow("Threshold Frame", thresh_frame)
     cv2.imshow("Color Frame", frame)
 
     key = cv2.waitKey(1)
