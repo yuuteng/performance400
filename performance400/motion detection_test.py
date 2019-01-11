@@ -1,90 +1,100 @@
 import cv2
 import time
 import numpy as np
+import matplotlib.pyplot as plot
 
-static_back = None
-video = cv2.VideoCapture('videos/run2.MOV')
-skip = 110
-k=30
-seuil=3
-
-trajectory = True
-if trajectory:
-    pts = []
-    pts_corrected=[]
+video = cv2.VideoCapture('videos/V0run.MOV')
+FIRST_FRAME_INDEX = -150
+LAST_FRAME_INDEX = 650
 
 
-while video.isOpened():
+def get_frames(m_frame, m_background):
+    m_gray_frame = cv2.cvtColor(m_frame, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.GaussianBlur(gray, (11, 11), 0)
+
+    if m_background is None:
+        m_background = m_gray_frame
+
+    m_difference_frame = cv2.absdiff(m_background, m_gray_frame)
+    m_threshold_frame = cv2.threshold(m_difference_frame, 30, 255, cv2.THRESH_BINARY)[1]
+    m_threshold_frame = cv2.dilate(m_threshold_frame, None, iterations=2)
+
+    return m_gray_frame, m_difference_frame, m_threshold_frame, m_background
+
+
+def get_largest_contour(m_contours):
+    m_largest_contour = contours[0]
+
+    for m_contour in m_contours:
+        if cv2.contourArea(m_contour) > cv2.contourArea(m_largest_contour):
+            m_largest_contour = m_contour
+
+    return m_largest_contour
+
+
+def draw_position(m_largest_contour, m_frame):
+    (x, y, w, h) = cv2.boundingRect(m_largest_contour)
+    dr = 400
+    x1, y1 = x + w - dr, y
+    x2, y2 = x1 + dr, y1 + dr
+    cv2.rectangle(m_frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
+    # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+
+    return (x1 + x2) / 2, (y1 + y2) / 2, m_frame
+
+
+def draw_trajectory(m_trajectory, m_frame, color=(0, 255, 0)):
+    cv2.polylines(m_frame, [np.array(m_trajectory, 'int32').reshape((-1, 1, 2))], isClosed=False, color=color,
+                  thickness=10, lineType=cv2.LINE_AA)
+
+    return m_frame
+
+
+background = None
+trajectory = []
+
+for j in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     frame = video.read()[1]
     if frame is None:
         break
 
-    if skip > 0:
-        skip -= 1
+    if j < 0:
         continue
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (21, 21), 0)
+    gray_frame, difference_frame, threshold_frame, background = get_frames(frame, background)
 
-    if static_back is None:
-        static_back = gray
-        continue
+    contours = cv2.findContours(threshold_frame.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[1]
 
-    diff_frame = cv2.absdiff(static_back, gray)
-    thresh_frame = cv2.threshold(diff_frame, 20, 255, cv2.THRESH_BINARY)[1]
-    thresh_frame = cv2.dilate(thresh_frame, None, iterations=2)
+    if contours is not None:
+        if len(contours) > 0:
+            largest_contour = get_largest_contour(contours)
 
-    contours = cv2.findContours(thresh_frame.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[1]
+            if cv2.contourArea(largest_contour) > 50000:
+                xc, yc, frame = draw_position(largest_contour, frame)
+                trajectory.append((xc, yc))
+                # frame = draw_trajectory(trajectory, frame)
 
-    if (contours is not None) & (len(contours) > 0):
-        biggestContour = contours[0]
-
-        for contour in contours:
-            if cv2.contourArea(contour) > cv2.contourArea(biggestContour):
-                biggestContour = contour
-
-        if cv2.contourArea(biggestContour) > 10000:
-            (x, y, w, h) = cv2.boundingRect(biggestContour)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-            cv2.circle(frame, (int(x + w / 2), int(y + h / 2)), 10, (255, 0, 0), 3)
-            if (trajectory):
-                a=int(x + w / 2)
-                b=int(y + h / 2)
-
-                pts.append((int(x + w / 2), int(y + h / 2)))
-                if((len(pts)>(k))&(len(pts)<2*k)):
-                    pts_corrected.append(pts[len(pts)-1-k])
-                elif(len(pts)>2*k):
-                    cumulx=0
-                    cumuly=0
-                    for i in range(k):
-                        cumulx+=pts[len(pts) - 1 - i-k][0]
-                        cumuly += pts[len(pts) - 1 - i-k ][1]
-                    if (abs(int(a - pts_corrected[len(pts_corrected)-1][0])) < seuil*cumulx/(k+1))&(abs(int(b - pts_corrected[len(pts_corrected)-1][1])) <seuil* cumuly/(k+1)):
-                        print("coucou")
-                        pts_corrected.append((a,b))
-
-                ptsmodif = np.array(pts, 'int32')
-                ptsmodif = ptsmodif.reshape((-1, 1, 2))
-                cv2.polylines(frame, [ptsmodif], isClosed=False, color=(0, 0, 0), thickness=5, lineType=cv2.LINE_AA)
-                pts_cor_modif = np.array(pts_corrected, 'int32')
-                pts_cor_modif = pts_cor_modif.reshape((-1, 1, 2))
-                cv2.polylines(frame, [pts_cor_modif], isClosed=False, color=(0, 255, 0), thickness=5, lineType=cv2.LINE_AA)
-
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(frame, '   x=' + str(x + w) + ' y= ' + str(y + h), (int(x + w / 2), int(y + h / 2)), font, 1.2,
-                        (0, 255, 0 ), 2, cv2.LINE_AA)
-    cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
     # cv2.imshow("Diff Frame", diff_frame)
     # cv2.imshow("Threshold Frame", thresh_frame)
-    cv2.imshow("Color Frame", frame)
+    # cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
+    # cv2.imshow("Color Frame", frame)
 
-    key = cv2.waitKey(1)
+    # key = cv2.waitKey(1)
 
-    if key == ord('q'):
-        break
+    # if key == ord('q'):
+    #     break
 
-    time.sleep(0.1)
+    if np.random.rand() < 0.1:
+        print(f"{int(j / LAST_FRAME_INDEX * 100)}% done")
 
 video.release()
 cv2.destroyAllWindows()
+
+velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in
+            range(1, len(trajectory))]
+
+plot.title("Profil de vitesse")
+plot.xlabel("Position")
+plot.ylabel("Vitesse")
+plot.plot(velocity)
+plot.show()
