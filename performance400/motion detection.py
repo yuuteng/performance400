@@ -42,8 +42,8 @@ def draw_position(m_largest_contour, m_frame):
     return (x1 + x2) / 2, (y1 + y2) / 2, m_frame
 
 
-def draw_trajectory(m_trajectory, m_frame):
-    cv2.polylines(m_frame, [np.array(m_trajectory, 'int32').reshape((-1, 1, 2))], isClosed=False, color=(255, 0, 0),
+def draw_trajectory(m_trajectory, m_frame,color=(0,255,0)):
+    cv2.polylines(m_frame, [np.array(m_trajectory, 'int32').reshape((-1, 1, 2))], isClosed=False, color=color,
                   thickness=10, lineType=cv2.LINE_AA)
 
     return m_frame
@@ -51,6 +51,10 @@ def draw_trajectory(m_trajectory, m_frame):
 
 background = None
 trajectory = []
+trajectory_corrected=[]
+k=100
+seuil=1.1
+
 
 for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     frame = video.read()[1]
@@ -71,7 +75,18 @@ for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
             if cv2.contourArea(largest_contour) > 50000:
                 xc, yc, frame = draw_position(largest_contour, frame)
                 trajectory.append((xc, yc))
+                if ((len(trajectory) > (k)) & (len(trajectory) < 2 * k)):
+                    trajectory_corrected.append(trajectory[len(trajectory) - 1 - k])
+                elif (len(trajectory) > 2 * k):
+                    cumulerr = 0
+                    for i in range(k):
+                        cumulerr += (trajectory[len(trajectory) - 1 - i - k][0]-trajectory[len(trajectory)  - i - k][0])**2+(trajectory[len(trajectory) - 1 - i - k][1]-trajectory[len(trajectory)  - i - k][1])**2
+                    if ((xc - trajectory[len(trajectory) - 1][0]))**2+((yc - trajectory[len(trajectory) - 1][1])**2) <seuil* cumulerr:
+                        print("coucou")
+                        trajectory_corrected.append((xc, yc))
+
                 frame = draw_trajectory(trajectory, frame)
+                frame= draw_trajectory(trajectory_corrected, frame,(255,0,255))
 
     # cv2.imshow("Diff Frame", diff_frame)
     # cv2.imshow("Threshold Frame", thresh_frame)
