@@ -56,7 +56,7 @@ print(tvecs)
 # tracé des axes spatiaux déterminés
 image = cv2.drawFrameAxes(img, camera_matrix, dist_coefs, rvecs[0], tvecs[0], 100)
 
-cv2.imwrite('axes.jpg', image)
+cv2.imwrite('images/maquettes1_axes.jpg', image)
 
 image2 = cv2.imread('axes.jpg')
 
@@ -66,7 +66,7 @@ mean_error = 0
 img_points2, jacobian = cv2.projectPoints(obj_points, rvecs[0], tvecs[0], camera_matrix, dist_coefs)
 for px in img_points2:
     cv2.circle(image, (px[0][0], px[0][1]), 10, (0, 0, 255), 5)
-cv2.imwrite('errors.jpg', image)
+cv2.imwrite('images/maquette1_errors.jpg', image)
 for i in range(0, len(img_points2)):
     mean_error += cv2.norm(img_points[i], img_points2[i][0], cv2.NORM_L2) / len(img_points2)
 
@@ -87,7 +87,7 @@ obj_points2 = np.array(obj_points2, 'float32')
 img_points3, jacobian = cv2.projectPoints(obj_points2, rvecs[0], tvecs[0], camera_matrix, dist_coefs)
 for px in img_points3:
     cv2.circle(image, (px[0][0], px[0][1]), 10, (0, 0, 255), 5)
-cv2.imwrite('elevated.jpg', image)
+cv2.imwrite('images/maquette1_elevated.jpg', image)
 
 # on veut retrouver X et Y sur le terrain d'un point de cote connue z à partir de u  et v  trouvées sur l'image
 u = 1926
@@ -115,4 +115,4 @@ img_point4, jacobian = cv2.projectPoints(p.T, rvecs[0], tvecs[0], camera_matrix,
 
 print('u et v : ', img_point4)
 cv2.circle(image2, (img_point4[0][0][0], img_point4[0][0][1]), 10, (0, 255, 0), 5)
-cv2.imwrite('calcul3D.jpg', image2)
+cv2.imwrite('images/maquette1_calcul3D.jpg', image2)
