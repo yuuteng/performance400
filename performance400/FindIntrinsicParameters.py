@@ -37,7 +37,7 @@ for fname in images:
 
         # Draw and display the corners
         img = cv2.drawChessboardCorners(img, (6, 4), corners2, ret)
-        cv2.imwrite('images/mireCalibree' + str(count) + '.jpg', img)
+        cv2.imwrite('images/miresCalibrees/mire' + str(count) + '.jpg', img)
         cv2.waitKey(0)
 
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)

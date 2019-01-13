@@ -9,8 +9,8 @@ tvecs = tvecs.reshape((3, 1))
 
 tvecs = np.array([tvecs])
 
-u = 1640
-v = 1557
+u = 2557
+v = 45
 z = 0
 
 start_time = time.time()

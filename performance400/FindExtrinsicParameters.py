@@ -29,6 +29,7 @@ dist_coefs = np.loadtxt('matrixTxt/distortion_vector')
 retval, camera_matrix, dist_coefs, rvecs, tvecs = cv2.calibrateCamera([obj_points], [img_points], size, camera_matrix,
                                                                       dist_coefs,
                                                                       flags=cv2.CALIB_USE_INTRINSIC_GUESS)
+
 rotation_matrix, jacobian = cv2.Rodrigues(rvecs[0])
 
 np.savetxt('matrixTxt/adjusted_camera_matrix', camera_matrix)
