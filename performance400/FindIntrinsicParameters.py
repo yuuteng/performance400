@@ -18,7 +18,7 @@ images = glob.glob('images/photosMire/*.jpg')
 count = 0
 for fname in images:
     img = cv2.imread(fname)
-    img = cv2.threshold(img, 180, 255, cv2.THRESH_TRUNC)[1]
+    img = cv2.threshold(img, 150, 255, cv2.THRESH_TRUNC)[1]
     # cv2.namedWindow('img', cv2.WINDOW_NORMAL)
     # cv2.imshow('img', img)
     # cv2.waitKey(0)
@@ -42,13 +42,12 @@ for fname in images:
 
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-img = cv2.imread('images/photosMire/mire0.jpg')
-h, w = img.shape[:2]
-camera_matrix, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 0, (w, h))
-
-
 print(mtx)
 print(dist)
+
+np.savetxt('matrixTxt/camera_matrix', mtx)
+np.savetxt('matrixTxt/distortion_vector', dist)
+
 
 # undistort
 dst = cv2.undistort(img, mtx, dist, None, mtx)
