@@ -65,14 +65,18 @@ def lissagetrajectoire(m_trajectory, dist, coeff):
     return m_trajectory_corrected
 
 
-def signal_remplissage_moyenne(m_trajectory, p):
+def signal_remplissage_moyenne(m_trajectory, p): #marche pas encore
     for k in range(len(m_trajectory)):
         if (m_trajectory[k] == (None, None)):
             Nb = 0
-            for l in range(k - p, k + p):
+            m_trajectory[k] == (0,0)
+            for l in range(k - p, k + p+1):
                 if (m_trajectory[l][1] != None):
-                    m_trajectory[k] += m_trajectory[l]
+                    m_trajectory[k][0] += m_trajectory[l][0]
+                    m_trajectory[k][1] += m_trajectory[l][1]
+
                     Nb += 1
+                    print(m_trajectory[k])
                 m_trajectory[k] = m_trajectory[k][0] / Nb
                 m_trajectory[k] = m_trajectory[k][1] / Nb
 
