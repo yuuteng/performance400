@@ -54,9 +54,13 @@ np.savetxt('matrices/F_stereo_test1', F)
 img_points1 = np.array(img_points1, 'float32')
 img_points2 = np.array(img_points2, 'float32')
 
-points4D = cv2.triangulatePoints(P1, P2, np.array(img_points1)[0], np.array(img_points2)[0])
+img_points1 = img_points1.reshape(2, 24)
+img_points2 = img_points2.reshape(2, 24)
 
-print(points4D)
+points4D = np.array((len(img_points1), 4), 'float32')
+
+points4D = cv2.triangulatePoints(P1, P2, img_points1[::2], img_points2[::2], points4D)
+
 np.savetxt('matrices/points4D_stereo_test1', points4D)
 
 point3D = np.array((1, 3), 'float32')
