@@ -18,7 +18,7 @@ images = glob.glob('images/photosMire/*.jpg')
 count = 0
 for fname in images:
     img = cv2.imread(fname)
-    img = cv2.threshold(img, 150, 255, cv2.THRESH_TRUNC)[1]
+    img = cv2.threshold(img, 200, 255, cv2.THRESH_TRUNC)[1]
     # cv2.namedWindow('img', cv2.WINDOW_NORMAL)
     # cv2.imshow('img', img)
     # cv2.waitKey(0)
