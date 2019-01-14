@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plot
 
-from performance400.calculate_3d_coords import change_of_reference
+from performance400.calculate_3d_coords import calculate_3d_coords
 
 video = cv2.VideoCapture('videos/V0run.MOV')
 FIRST_FRAME_INDEX = -150
@@ -64,6 +64,19 @@ def lissagetrajectoire(m_trajectory, dist, coeff):
             m_trajectory_corrected.append(m_trajectory[j])
     return m_trajectory_corrected
 
+def signal_remplissage_moyenne(m_trajectory,p):
+    for k in range(len(m_trajectory)):
+        if(m_trajectory[k]==(None,None)):
+            Nb=0
+            for l in range(k-p,k+p):
+                if(m_trajectory[l][1]!=None):
+                    m_trajectory[k]+=m_trajectory[l]
+                    Nb+=1
+                m_trajectory[k]=m_trajectory[k]/Nb
+
+
+    return m_trajectory
+
 
 background = None
 trajectory = []
@@ -86,9 +99,11 @@ for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 
             if cv2.contourArea(largest_contour) > 50000:
                 xc, yc, frame = draw_position(largest_contour, frame)
-                xcc, ycc = change_of_reference(xc, yc)
+                xcc, ycc = calculate_3d_coords(xc, yc)
                 trajectory.append((xcc, ycc))
                 # frame = draw_trajectory(trajectory, frame)
+    else:
+        trajectory.append((None, None))
 
     # cv2.imshow("Diff Frame", diff_frame)
     # cv2.imshow("Threshold Frame", thresh_frame)
