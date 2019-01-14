@@ -25,7 +25,7 @@ if cap.isOpened() and video_length > 0:
         while success:
             if count in frame_ids:
                 print('ah', count)
-                cv2.imwrite('images/photosMire/mire' + str(count) + '.jpg', image)
+                cv2.imwrite('images/targets/targets' + str(count) + '.jpg', image)
             success, image = cap.read()
             count += 1
 

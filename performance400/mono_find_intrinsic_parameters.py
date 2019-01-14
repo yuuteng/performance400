@@ -6,18 +6,18 @@ import glob
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((6 * 4, 3), np.float32)
-objp[:, :2] = np.mgrid[0:6, 0:4].T.reshape(-1, 2)
+object_point = np.zeros((6 * 4, 3), np.float32)
+object_point[:, :2] = np.mgrid[0:6, 0:4].T.reshape(-1, 2)
 
 # Arrays to store object points and image points from all the images.
-objpoints = []  # 3d point in real world space
-imgpoints = []  # 2d points in image plane.
+object_points = []  # 3d point in real world space
+image_points = []  # 2d points in image plane.
 #
-images = glob.glob('images/photosMire/*.jpg')
+images = glob.glob('images/targets/*.jpg')
 
 count = 0
-for fname in images:
-    img = cv2.imread(fname)
+for file_name in images:
+    img = cv2.imread(file_name)
     img = cv2.threshold(img, 200, 255, cv2.THRESH_TRUNC)[1]
     # cv2.namedWindow('img', cv2.WINDOW_NORMAL)
     # cv2.imshow('img', img)
@@ -30,24 +30,23 @@ for fname in images:
     # If found, add object points, image points (after refining them)
     if ret:
         count += 1
-        objpoints.append(objp)
+        object_points.append(object_point)
 
         corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-        imgpoints.append(corners2)
+        image_points.append(corners2)
 
         # Draw and display the corners
         img = cv2.drawChessboardCorners(img, (6, 4), corners2, ret)
-        cv2.imwrite('images/miresCalibrees/mire' + str(count) + '.jpg', img)
+        cv2.imwrite('images/targets/calibrated/targets' + str(count) + '.jpg', img)
         cv2.waitKey(0)
 
-ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+(_, mtx, dist, _, _) = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
 
 print(mtx)
 print(dist)
 
 np.savetxt('matrices/camera_matrix', mtx)
 np.savetxt('matrices/distortion_vector', dist)
-
 
 # undistort
 dst = cv2.undistort(img, mtx, dist, None, mtx)
