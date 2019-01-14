@@ -64,18 +64,21 @@ def lissagetrajectoire(m_trajectory, dist, coeff):
             m_trajectory_corrected.append(m_trajectory[j])
     return m_trajectory_corrected
 
-def signal_remplissage_moyenne(m_trajectory,p):
-    for k in range(len(m_trajectory)):
-        if(m_trajectory[k]==(None,None)):
-            Nb=0
-            for l in range(k-p,k+p):
-                if(m_trajectory[l][1]!=None):
-                    m_trajectory[k]+=m_trajectory[l]
-                    Nb+=1
-                m_trajectory[k]=m_trajectory[k]/Nb
 
+def signal_remplissage_moyenne(m_trajectory, p):
+    for k in range(len(m_trajectory)):
+        if (m_trajectory[k] == (None, None)):
+            Nb = 0
+            for l in range(k - p, k + p):
+                if (m_trajectory[l][1] != None):
+                    m_trajectory[k] += m_trajectory[l]
+                    Nb += 1
+                m_trajectory[k] = m_trajectory[k][0] / Nb
+                m_trajectory[k] = m_trajectory[k][1] / Nb
 
     return m_trajectory
+
+
 
 
 background = None
@@ -99,11 +102,12 @@ for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 
             if cv2.contourArea(largest_contour) > 50000:
                 xc, yc, frame = draw_position(largest_contour, frame)
-                xcc, ycc = calculate_3d_coords(xc, yc)
+                xcc, ycc = calculate_3d_coords(xc, yc)[0:2]
                 trajectory.append((xcc, ycc))
                 # frame = draw_trajectory(trajectory, frame)
     else:
         trajectory.append((None, None))
+        print("zvnbzeiurfnhoairehnvoziherhrhvaeuog")
 
     # cv2.imshow("Diff Frame", diff_frame)
     # cv2.imshow("Threshold Frame", thresh_frame)
