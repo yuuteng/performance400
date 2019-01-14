@@ -16,15 +16,15 @@ img_points = [[1572, 1534], [1640, 1557], [1708, 1578], [1780, 1601], [1853, 162
               [2411, 247], [2463, 260], [2513, 271], [2566, 281], [2416, 15], [2464, 24], [2509, 36], [2557, 45],
               [2607, 56], [2655, 66]]
 
-np.savetxt('matrixTxt/obj_points_testMono1', obj_points)
-np.savetxt('matrixTxt/img_points_testMono1', img_points)
+np.savetxt('matrices/obj_points_testMono1', obj_points)
+np.savetxt('matrices/img_points_testMono1', img_points)
 
 obj_points = np.array(obj_points, 'float32')
 img_points = np.array(img_points, 'float32')
 size = frame.shape[:2]
 
-camera_matrix = np.loadtxt('matrixTxt/camera_matrix')
-dist_coefs = np.loadtxt('matrixTxt/distortion_vector')
+camera_matrix = np.loadtxt('matrices/camera_matrix')
+dist_coefs = np.loadtxt('matrices/distortion_vector')
 
 retval, camera_matrix, dist_coefs, rvecs, tvecs = cv2.calibrateCamera([obj_points], [img_points], size, camera_matrix,
                                                                       dist_coefs,
@@ -32,11 +32,11 @@ retval, camera_matrix, dist_coefs, rvecs, tvecs = cv2.calibrateCamera([obj_point
 
 rotation_matrix, jacobian = cv2.Rodrigues(rvecs[0])
 
-np.savetxt('matrixTxt/adjusted_camera_matrix', camera_matrix)
-np.savetxt('matrixTxt/adjusted_distortion_vector', dist_coefs)
-np.savetxt('matrixTxt/rotation_vector', rvecs[0])
-np.savetxt('matrixTxt/translation_vector', tvecs[0])
-np.savetxt('matrixTxt/rotation_matrix', rotation_matrix)
+np.savetxt('matrices/adjusted_camera_matrix', camera_matrix)
+np.savetxt('matrices/adjusted_distortion_vector', dist_coefs)
+np.savetxt('matrices/rotation_vector', rvecs[0])
+np.savetxt('matrices/translation_vector', tvecs[0])
+np.savetxt('matrices/rotation_matrix', rotation_matrix)
 
 mean_error = 0
 # dessiner les axes

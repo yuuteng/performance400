@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plot
 
+from performance400.calculate_3d_coords import change_of_reference
+
 video = cv2.VideoCapture('videos/V0run.MOV')
 FIRST_FRAME_INDEX = -150
 LAST_FRAME_INDEX = 650
@@ -49,15 +51,28 @@ def draw_trajectory(m_trajectory, m_frame, color=(0, 255, 0)):
     return m_frame
 
 
+def lissagetrajectoire(m_trajectory, dist, coeff):
+    liste_diff2 = [0]
+    for j in range(1, len(m_trajectory)):
+        liste_diff2.append(
+            (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2)
+    m_trajectory_corrected = []
+    for j in range(dist, len(m_trajectory) - dist):
+        if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
+                m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 < coeff * np.mean(liste_diff2[j - dist:j + dist]):
+            m_trajectory_corrected.append(m_trajectory[j])
+    return m_trajectory_corrected
+
+
 background = None
 trajectory = []
 
-for j in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
+for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     frame = video.read()[1]
     if frame is None:
         break
 
-    if j < 0:
+    if i < 0:
         continue
 
     gray_frame, difference_frame, threshold_frame, background = get_frames(frame, background)
@@ -70,30 +85,33 @@ for j in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 
             if cv2.contourArea(largest_contour) > 50000:
                 xc, yc, frame = draw_position(largest_contour, frame)
-                trajectory.append((xc, yc))
+                xcc, ycc = change_of_reference(xc, yc)
+                trajectory.append((xcc, ycc))
                 # frame = draw_trajectory(trajectory, frame)
 
     # cv2.imshow("Diff Frame", diff_frame)
     # cv2.imshow("Threshold Frame", thresh_frame)
-    # cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
-    # cv2.imshow("Color Frame", frame)
+    cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
+    cv2.imshow("Color Frame", frame)
 
-    # key = cv2.waitKey(1)
+    key = cv2.waitKey(1)
 
-    # if key == ord('q'):
-    #     break
+    if key == ord('q'):
+        break
 
-    if np.random.rand() < 0.1:
-        print(f"{int(j / LAST_FRAME_INDEX * 100)}% done")
+    if np.random.rand() < 0.05:
+        print(f"{int(i / LAST_FRAME_INDEX * 100)}% done")
 
 video.release()
 cv2.destroyAllWindows()
+
+trajectory = lissagetrajectoire(trajectory, 10, 3)
 
 velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in
             range(1, len(trajectory))]
 
 plot.title("Profil de vitesse")
-plot.xlabel("Position")
+plot.xlabel("Temps")
 plot.ylabel("Vitesse")
 plot.plot(velocity)
 plot.show()

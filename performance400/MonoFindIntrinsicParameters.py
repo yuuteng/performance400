@@ -45,8 +45,8 @@ ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.sh
 print(mtx)
 print(dist)
 
-np.savetxt('matrixTxt/camera_matrix', mtx)
-np.savetxt('matrixTxt/distortion_vector', dist)
+np.savetxt('matrices/camera_matrix', mtx)
+np.savetxt('matrices/distortion_vector', dist)
 
 
 # undistort
