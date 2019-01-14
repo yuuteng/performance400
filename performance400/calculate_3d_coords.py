@@ -32,4 +32,4 @@ def calculate_3d_coords(u, v, z=0, verbose=False):
     return p
 
 
-print(calculate_3d_coords(2557, 45, verbose=True))
+# print(calculate_3d_coords(2557, 45, verbose=True))

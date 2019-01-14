@@ -1,13 +1,8 @@
-
 import cv2
 import numpy as np
 import matplotlib.pyplot as plot
 
 from performance400.calculate_3d_coords import calculate_3d_coords
-
-video = cv2.VideoCapture('videos/V0run.MOV')
-FIRST_FRAME_INDEX = -150
-LAST_FRAME_INDEX = 650
 
 
 def get_frames(m_frame, m_background):
@@ -52,43 +47,47 @@ def draw_trajectory(m_trajectory, m_frame, color=(0, 255, 0)):
     return m_frame
 
 
-def lissagetrajectoire(m_trajectory, dist, coeff):
-    liste_diff2 = [0]
+def trajectory_smoothing(m_trajectory, m_window_length, m_threshold):
+    m_consecutive_squared_distances = [0]
     for j in range(1, len(m_trajectory)):
-        liste_diff2.append(
+        m_consecutive_squared_distances.append(
             (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2)
-    m_trajectory_corrected = []
-    for j in range(dist, len(m_trajectory) - dist):
+    m_corrected_trajectory = []
+    for j in range(m_window_length, len(m_trajectory) - m_window_length):
         if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
-                m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 < coeff * np.mean(liste_diff2[j - dist:j + dist]):
-            m_trajectory_corrected.append(m_trajectory[j])
-    return m_trajectory_corrected
+                m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 < m_threshold * np.mean(
+                m_consecutive_squared_distances[j - m_window_length:j + m_window_length]):
+            m_corrected_trajectory.append(m_trajectory[j])
+    return m_corrected_trajectory
 
 
-def signal_remplissage_moyenne(m_trajectory, p): #marche pas encore
+# TODO rename me :)
+# Doesn't work :(
+def signal_remplissage_moyenne(m_trajectory, p):
     for k in range(len(m_trajectory)):
-        if (m_trajectory[k] == (None, None)):
-            Nb = 0
-            m_trajectory[k] == (0,0)
-            for l in range(k - p, k + p+1):
-                if (m_trajectory[l][1] != None):
-                    m_trajectory[k][0] += m_trajectory[l][0]
-                    m_trajectory[k][1] += m_trajectory[l][1]
+        if m_trajectory[k] == (None, None):
+            count = 0
+            for j in range(k - p, k + p + 1):
+                if m_trajectory[j][1] is not None:
+                    m_trajectory[k][0] += m_trajectory[j][0]
+                    m_trajectory[k][1] += m_trajectory[j][1]
 
-                    Nb += 1
+                    count += 1
                     print(m_trajectory[k])
-                m_trajectory[k] = m_trajectory[k][0] / Nb
-                m_trajectory[k] = m_trajectory[k][1] / Nb
+                m_trajectory[k] = m_trajectory[k][0] / count
+                m_trajectory[k] = m_trajectory[k][1] / count
 
     return m_trajectory
 
 
-
+FIRST_FRAME_INDEX = 150
+LAST_FRAME_INDEX = 650
 
 background = None
 trajectory = []
 
-for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
+video = cv2.VideoCapture('videos/V0run.MOV')
+for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     frame = video.read()[1]
     if frame is None:
         break
@@ -106,12 +105,11 @@ for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 
             if cv2.contourArea(largest_contour) > 50000:
                 xc, yc, frame = draw_position(largest_contour, frame)
-                xcc, ycc = calculate_3d_coords(xc, yc)[0:2]
-                trajectory.append((xcc, ycc))
+                xcc, ycc = calculate_3d_coords(xc, yc)[:2]
+                trajectory.append((xcc[0], ycc[0]))
                 # frame = draw_trajectory(trajectory, frame)
     else:
         trajectory.append((None, None))
-        print("zvnbzeiurfnhoairehnvoziherhrhvaeuog")
 
     # cv2.imshow("Diff Frame", diff_frame)
     # cv2.imshow("Threshold Frame", thresh_frame)
@@ -129,13 +127,25 @@ for i in range(FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 video.release()
 cv2.destroyAllWindows()
 
-trajectory = lissagetrajectoire(trajectory, 10, 3)
+trajectory = trajectory_smoothing(trajectory, 10, 3)
 
 velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in
             range(1, len(trajectory))]
 
+for i in range(1, 10):
+    print(f"Norme de {np.asarray(trajectory[i])} - {np.asarray(trajectory[i - 1])} = {np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1]))}")
+
+plot.subplot(2, 1, 1)
+plot.title("Profil de position")
+plot.xlabel("Temps")
+plot.ylabel("Position")
+lines = plot.plot(trajectory)
+plot.legend([lines[0], lines[1]], ["Position suivant x", "Position suivant y"])
+
+plot.subplot(2, 1, 2)
 plot.title("Profil de vitesse")
 plot.xlabel("Temps")
 plot.ylabel("Vitesse")
 plot.plot(velocity)
+
 plot.show()
