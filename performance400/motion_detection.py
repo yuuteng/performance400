@@ -8,13 +8,13 @@ from performance400.calculate_3d_coords import calculate_3d_coords
 
 def get_frames(m_frame, m_background):
     m_gray_frame = cv2.cvtColor(m_frame, cv2.COLOR_BGR2GRAY)
-    # gray = cv2.GaussianBlur(gray, (11, 11), 0)
+    m_gray_frame = cv2.GaussianBlur(m_gray_frame, (21, 21), 0)
 
     if m_background is None:
         m_background = m_gray_frame
 
     m_difference_frame = cv2.absdiff(m_background, m_gray_frame)
-    m_threshold_frame = cv2.threshold(m_difference_frame, 30, 255, cv2.THRESH_BINARY)[1]
+    m_threshold_frame = cv2.threshold(m_difference_frame, 10, 255, cv2.THRESH_BINARY)[1]
     m_threshold_frame = cv2.dilate(m_threshold_frame, None, iterations=2)
 
     return m_gray_frame, m_difference_frame, m_threshold_frame, m_background
@@ -32,9 +32,8 @@ def get_largest_contour(m_contours):
 
 def draw_position(m_largest_contour, m_frame):
     (x, y, w, h) = cv2.boundingRect(m_largest_contour)
-    dr = 400
-    x1, y1 = x + w - dr, y
-    x2, y2 = x1 + dr, y1 + dr
+    x1, y1 = x, y
+    x2, y2 = x1 + w, y1 + h
     cv2.rectangle(m_frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
     # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
@@ -75,13 +74,13 @@ def trajectory_filtering(m_trajectory):
     return m_filtered_trajectory
 
 
-FIRST_FRAME_INDEX = 150
-LAST_FRAME_INDEX = 650
+FIRST_FRAME_INDEX = 0
+LAST_FRAME_INDEX = 210
 
 background = None
 trajectory = []
 
-video = cv2.VideoCapture('videos/V0run.MOV')
+video = cv2.VideoCapture('videos/runway/gauche.mp4')
 for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     frame = video.read()[1]
     if frame is None:
@@ -98,10 +97,11 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
         if len(contours) > 0:
             largest_contour = get_largest_contour(contours)
 
-            if cv2.contourArea(largest_contour) > 50000:
+            if cv2.contourArea(largest_contour) > 2000:
                 xc, yc, frame = draw_position(largest_contour, frame)
                 xcc, ycc = calculate_3d_coords(xc, yc)[:2]
-                trajectory.append((xcc[0], ycc[0]))
+                # trajectory.append((xcc[0], ycc[0]))
+                trajectory.append((xc, yc))
                 # frame = draw_trajectory(trajectory, frame)
     else:
         trajectory.append((None, None))
@@ -122,23 +122,22 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 video.release()
 cv2.destroyAllWindows()
 
-trajectory = trajectory_smoothing(trajectory, 10, 3)
 
+trajectory = trajectory_smoothing(trajectory, 10, 3)
+time = np.linspace(0, 7 * len(trajectory) / (LAST_FRAME_INDEX - FIRST_FRAME_INDEX), len(trajectory))
 velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in
             range(1, len(trajectory))]
 
 plot.subplot(2, 1, 1)
 plot.title("Profil de position")
-plot.xlabel("Temps")
+plot.xlabel("Temps (s)")
 plot.ylabel("Position")
-plot.xlabel("Temps")
-plot.ylabel("Position")
-lines = plot.plot(trajectory)
+lines = plot.plot(time, trajectory)
 plot.legend([lines[0], lines[1]], ["Position suivant x", "Position suivant y"])
 
 plot.subplot(2, 1, 2)
 plot.title("Profil de vitesse")
-plot.xlabel("Temps")
+plot.xlabel("Temps (s)")
 plot.ylabel("Vitesse")
-plot.plot(velocity)
+plot.plot(time[:-1], velocity)
 plot.show()
