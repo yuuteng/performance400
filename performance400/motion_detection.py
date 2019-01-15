@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plot
+import scipy.signal
 
 from performance400.calculate_3d_coords import calculate_3d_coords
 
@@ -58,26 +59,20 @@ def trajectory_smoothing(m_trajectory, m_window_length, m_threshold):
                 m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 < m_threshold * np.mean(
                 m_consecutive_squared_distances[j - m_window_length:j + m_window_length]):
             m_corrected_trajectory.append(m_trajectory[j])
+
+    m_corrected_trajectory = trajectory_filtering(m_corrected_trajectory)
+
     return m_corrected_trajectory
 
 
-# TODO rename me :)
-# Doesn't work :(
-def signal_remplissage_moyenne(m_trajectory, p):
-    for k in range(len(m_trajectory)):
-        if m_trajectory[k] == (None, None):
-            count = 0
-            for j in range(k - p, k + p + 1):
-                if m_trajectory[j][1] is not None:
-                    m_trajectory[k][0] += m_trajectory[j][0]
-                    m_trajectory[k][1] += m_trajectory[j][1]
+def trajectory_filtering(m_trajectory):
+    m_shaped_trajectory = np.transpose(np.asarray(m_trajectory))
+    m_filtered_x = scipy.signal.savgol_filter(m_shaped_trajectory[0], 21, 5)
+    m_filtered_y = scipy.signal.savgol_filter(m_shaped_trajectory[1], 21, 5)
 
-                    count += 1
-                    print(m_trajectory[k])
-                m_trajectory[k] = m_trajectory[k][0] / count
-                m_trajectory[k] = m_trajectory[k][1] / count
+    m_filtered_trajectory = [(m_filtered_x[k], m_filtered_y[k]) for k in range(0, len(m_filtered_x))]
 
-    return m_trajectory
+    return m_filtered_trajectory
 
 
 FIRST_FRAME_INDEX = 150
@@ -132,11 +127,10 @@ trajectory = trajectory_smoothing(trajectory, 10, 3)
 velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in
             range(1, len(trajectory))]
 
-for i in range(1, 10):
-    print(f"Norme de {np.asarray(trajectory[i])} - {np.asarray(trajectory[i - 1])} = {np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1]))}")
-
 plot.subplot(2, 1, 1)
 plot.title("Profil de position")
+plot.xlabel("Temps")
+plot.ylabel("Position")
 plot.xlabel("Temps")
 plot.ylabel("Position")
 lines = plot.plot(trajectory)
@@ -147,5 +141,4 @@ plot.title("Profil de vitesse")
 plot.xlabel("Temps")
 plot.ylabel("Vitesse")
 plot.plot(velocity)
-
 plot.show()
