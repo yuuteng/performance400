@@ -16,6 +16,7 @@ def get_frames(m_frame, m_background):
 
     m_difference_frame = cv2.absdiff(m_background, m_gray_frame)
     m_threshold_frame = cv2.threshold(m_difference_frame, DETECTION_THRESHOLD, 255, cv2.THRESH_BINARY)[1]
+    #m_threshold_frame =cv2.adaptiveThreshold(m_difference_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
     m_threshold_frame = cv2.dilate(m_threshold_frame, None, iterations=NUMBER_OF_DILATATION)
 
     return m_gray_frame, m_difference_frame, m_threshold_frame, m_background
