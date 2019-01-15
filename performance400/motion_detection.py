@@ -160,14 +160,14 @@ time = np.linspace(0, size / VIDEO_FREQUENCY, size)
 velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in range(1, size)]
 
 # On représente les données obtenues
-plot.subplot(3, 1, 1)
+plot.subplot(2, 2, 1)
 plot.title("Profil de position")
 plot.xlabel("Temps (s)")
 plot.ylabel("Position (m)")
 lines = plot.plot(trajectory)
 plot.legend(lines, ["Position suivant x", "Position suivant y"])
 
-plot.subplot(3, 1, 2)
+plot.subplot(2, 2, 2)
 plot.title("Profil de vitesse")
 plot.xlabel("Temps (s)")
 plot.ylabel("Vitesse (m/s)")
@@ -175,10 +175,16 @@ plot.plot(time[:-1], velocity)
 plot.show()
 
 plot.subplot(2, 2, 3)
-plot.title("Deplacement sur la piste")
+plot.title("Deplacement sur le plan de la piste")
 plot.xlabel("Y")
 plot.ylabel("X")
 plot.plot(np.transpose(trajectory)[0], np.transpose(trajectory)[1])
+
+plot.subplot(2, 2, 3)
+plot.title("Test")
+plot.xlabel("Y")
+plot.ylabel("X")
+plot.plot(time, np.transpose(corners_trajectories[2])[2])
 
 # on enregistre
 np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
