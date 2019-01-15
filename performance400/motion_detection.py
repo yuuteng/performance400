@@ -40,6 +40,7 @@ def draw_trajectory(m_trajectory, m_frame, m_color=(0, 255, 0)):
 
     return m_frame
 
+# TODO remplacer les points manquants par des interpolations
 
 # Lisse la trajectoire m_trajectory
 def trajectory_smoothing(m_trajectory, m_window_length=10, m_threshold=3):
@@ -83,7 +84,7 @@ video = cv2.VideoCapture('videos/runway/gauche.mp4')
 
 background = None
 
-corners_trajectories = [[], [], [], []]  # Top right hand corner then CCW
+corners_trajectories = [[], [], [], []]  # Top left hand corner then CCW
 trajectory_camera_coord = []
 
 for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
@@ -111,7 +112,6 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 (x, y, w, h) = cv2.boundingRect(largest_contour)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
-                # Top right hand corner then CCW
                 (x1, y1, _) = calculate_3d_coords(x, y)
                 (x2, y2, _) = calculate_3d_coords(x, y + h)
                 (x3, y3, _) = calculate_3d_coords(x + w, y + h)
@@ -144,6 +144,8 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 
 video.release()
 cv2.destroyAllWindows()
+
+print(corners_trajectories[0])
 
 # On lisse la trajectoire
 corners_trajectories[0] = trajectory_smoothing(corners_trajectories[0])
@@ -180,11 +182,11 @@ plot.xlabel("Y")
 plot.ylabel("X")
 plot.plot(np.transpose(trajectory)[0], np.transpose(trajectory)[1])
 
-plot.subplot(2, 2, 3)
+plot.subplot(2, 2, 4)
 plot.title("Test")
 plot.xlabel("Y")
 plot.ylabel("X")
-plot.plot(time, np.transpose(corners_trajectories[2])[2])
+plot.plot( np.transpose(corners_trajectories[1])[1])
 
 # on enregistre
 np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
