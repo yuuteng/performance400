@@ -16,7 +16,7 @@ def get_frames(m_frame, m_background):
 
     m_difference_frame = cv2.absdiff(m_background, m_gray_frame)
     m_threshold_frame = cv2.threshold(m_difference_frame, DETECTION_THRESHOLD, 255, cv2.THRESH_BINARY)[1]
-    #m_threshold_frame =cv2.adaptiveThreshold(m_difference_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    # m_threshold_frame =cv2.adaptiveThreshold(m_difference_frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
     m_threshold_frame = cv2.dilate(m_threshold_frame, None, iterations=NUMBER_OF_DILATATION)
 
     return m_gray_frame, m_difference_frame, m_threshold_frame, m_background
@@ -33,27 +33,16 @@ def get_largest_contour(m_contours):
     return m_largest_contour
 
 
-# Renvoie le centre du contour m_largest_contour et le dessine sur m_frame
-def draw_position(m_largest_contour, m_frame):
-    (x, y, w, h) = cv2.boundingRect(m_largest_contour)
-    x1, y1 = x, y
-    x2, y2 = x1 + w, y1 + h
-    cv2.rectangle(m_frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
-    # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-
-    return (x1 + x2) / 2, (y1 + y2) / 2, m_frame
-
-
 # Dessine la trajectoire du centre du plus grand contour sur m_frame
-def draw_trajectory(m_trajectory, m_frame, color=(0, 255, 0)):
-    cv2.polylines(m_frame, [np.array(m_trajectory, 'int32').reshape((-1, 1, 2))], isClosed=False, color=color,
+def draw_trajectory(m_trajectory, m_frame, m_color=(0, 255, 0)):
+    cv2.polylines(m_frame, [np.array(m_trajectory, 'int32').reshape((-1, 1, 2))], isClosed=False, color=m_color,
                   thickness=10, lineType=cv2.LINE_AA)
 
     return m_frame
 
 
 # Lisse la trajectoire m_trajectory
-def trajectory_smoothing(m_trajectory, m_window_length, m_threshold):
+def trajectory_smoothing(m_trajectory, m_window_length=10, m_threshold=3):
     m_consecutive_squared_distances = [0]
     for j in range(1, len(m_trajectory)):
         m_consecutive_squared_distances.append(
@@ -62,7 +51,7 @@ def trajectory_smoothing(m_trajectory, m_window_length, m_threshold):
     for j in range(m_window_length, len(m_trajectory) - m_window_length):
         if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
                 m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 < m_threshold * np.mean(
-                m_consecutive_squared_distances[j - m_window_length:j + m_window_length]):
+            m_consecutive_squared_distances[j - m_window_length:j + m_window_length]):
             m_corrected_trajectory.append(m_trajectory[j])
 
     m_corrected_trajectory = trajectory_filtering(m_corrected_trajectory)
@@ -79,6 +68,7 @@ def trajectory_filtering(m_trajectory):
     m_filtered_trajectory = [(m_filtered_x[k], m_filtered_y[k]) for k in range(0, len(m_filtered_x))]
 
     return m_filtered_trajectory
+    # return m_trajectory
 
 
 FIRST_FRAME_INDEX = 0
@@ -92,8 +82,9 @@ NUMBER_OF_DILATATION = 2
 video = cv2.VideoCapture('videos/runway/gauche.mp4')
 
 background = None
-trajectory = []
-trajectory_camera_coord=[]
+
+corners_trajectories = [[], [], [], []]  # Top right hand corner then CCW
+trajectory_camera_coord = []
 
 for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     # On s'assure que la frame courante est bonne et nous intéresse
@@ -117,16 +108,30 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
             largest_contour = get_largest_contour(contours)
 
             if cv2.contourArea(largest_contour) > MIN_CONTOUR_AREA:
-                xc, yc, frame = draw_position(largest_contour, frame)
-                xcc, ycc = calculate_3d_coords(xc, yc)[:2]
-                trajectory_camera_coord.append((xc, yc))
-                trajectory.append((xcc[0], ycc[0]))
-                # frame = draw_trajectory(trajectory, frame)
-    else:
-        trajectory.append((None, None))
+                (x, y, w, h) = cv2.boundingRect(largest_contour)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
-    # cv2.imshow("Diff Frame", diff_frame)
-    # cv2.imshow("Threshold Frame", thresh_frame)
+                # Top right hand corner then CCW
+                x1, y1 = calculate_3d_coords(x, y)[:2]
+                x2, y2 = calculate_3d_coords(x, y + h)[:2]
+                x3, y3 = calculate_3d_coords(x + w, y + h)[:2]
+                x4, y4 = calculate_3d_coords(x + w, y)[:2]
+
+                # TODO change me
+                trajectory_camera_coord.append((x + w / 2, y + w / 2))
+
+                # TODO fix me
+                corners_trajectories[0].append((x1[0], y1[0]))
+                corners_trajectories[1].append((x2[0], y2[0]))
+                corners_trajectories[2].append((x3[0], y3[0]))
+                corners_trajectories[3].append((x4[0], y4[0]))
+    else:
+        n = (None, None)
+        corners_trajectories[0].append(n)
+        corners_trajectories[1].append(n)
+        corners_trajectories[2].append(n)
+        corners_trajectories[3].append(n)
+
     cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
     cv2.imshow("Color Frame", frame)
 
@@ -135,34 +140,41 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     if key == ord('q'):
         break
 
-    if np.random.rand() < 0.05:
+    if np.random.rand() < 0.07:
         print(f"{int(i / LAST_FRAME_INDEX * 100)}% done")
 
 video.release()
 cv2.destroyAllWindows()
 
 # On lisse la trajectoire
-trajectory = trajectory_smoothing(trajectory, 10, 3)
-time = np.linspace(0, len(trajectory) / VIDEO_FREQUENCY, len(trajectory))
+corners_trajectories[0] = trajectory_smoothing(corners_trajectories[0])
+corners_trajectories[1] = trajectory_smoothing(corners_trajectories[1])
+corners_trajectories[2] = trajectory_smoothing(corners_trajectories[2])
+corners_trajectories[3] = trajectory_smoothing(corners_trajectories[3])
+
+# TODO improve me
+trajectory = corners_trajectories[0]
+
+size = len(trajectory)
+time = np.linspace(0, size / VIDEO_FREQUENCY, size)
 # On déduit la vitesse de la forme en mouvement à partir de sa trajectoire lissée
-velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) * VIDEO_FREQUENCY for i in
-            range(1, len(trajectory))]
+velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in range(1, size)]
 
 # On représente les données obtenues
-plot.subplot(2, 1, 1)
+plot.subplot(3, 1, 1)
 plot.title("Profil de position")
 plot.xlabel("Temps (s)")
 plot.ylabel("Position (m)")
-lines = plot.plot(time, trajectory)
-plot.legend([lines[0], lines[1]], ["Position suivant x", "Position suivant y"])
+lines = plot.plot(trajectory)
+plot.legend(lines, ["Position suivant x", "Position suivant y"])
 
-plot.subplot(2, 1, 2)
+plot.subplot(3, 1, 2)
 plot.title("Profil de vitesse")
 plot.xlabel("Temps (s)")
 plot.ylabel("Vitesse (m/s)")
 plot.plot(time[:-1], velocity)
 plot.show()
 
-#on enregistre
-np.savetxt('trajectoirecoorcamera.txt',trajectory_camera_coord)
-#attention la courbe n'est pas filtré
+# on enregistre
+np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
+# attention la courbe n'est pas filtré
