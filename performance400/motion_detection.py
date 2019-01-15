@@ -112,19 +112,18 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
                 # Top right hand corner then CCW
-                x1, y1 = calculate_3d_coords(x, y)[:2]
-                x2, y2 = calculate_3d_coords(x, y + h)[:2]
-                x3, y3 = calculate_3d_coords(x + w, y + h)[:2]
-                x4, y4 = calculate_3d_coords(x + w, y)[:2]
+                (x1, y1, _) = calculate_3d_coords(x, y)
+                (x2, y2, _) = calculate_3d_coords(x, y + h)
+                (x3, y3, _) = calculate_3d_coords(x + w, y + h)
+                (x4, y4, _) = calculate_3d_coords(x + w, y)
 
                 # TODO change me
                 trajectory_camera_coord.append((x + w / 2, y + w / 2))
 
-                # TODO fix me
-                corners_trajectories[0].append((x1[0], y1[0]))
-                corners_trajectories[1].append((x2[0], y2[0]))
-                corners_trajectories[2].append((x3[0], y3[0]))
-                corners_trajectories[3].append((x4[0], y4[0]))
+                corners_trajectories[0].append((x1, y1))
+                corners_trajectories[1].append((x2, y2))
+                corners_trajectories[2].append((x3, y3))
+                corners_trajectories[3].append((x4, y4))
     else:
         n = (None, None)
         corners_trajectories[0].append(n)

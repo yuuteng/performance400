@@ -29,7 +29,7 @@ def calculate_3d_coords(u, v, z=0, verbose=False):
         print("--- %s seconds ---" % (time.time() - start_time))
         print('X et Y du point', p)
 
-    return p
+    return p[0][0], p[1][0], p[2][0]
 
 
-# print(calculate_3d_coords(2557, 45, verbose=True))
+# print(calculate_3d_coords(2557, 45))
