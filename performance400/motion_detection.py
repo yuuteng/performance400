@@ -175,6 +175,12 @@ plot.ylabel("Vitesse (m/s)")
 plot.plot(time[:-1], velocity)
 plot.show()
 
+plot.subplot(2, 2, 3)
+plot.title("Deplacement sur la piste")
+plot.xlabel("Y")
+plot.ylabel("X")
+plot.plot(np.transpose(trajectory)[0], np.transpose(trajectory)[1])
+
 # on enregistre
 np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
 # attention la courbe n'est pas filtré

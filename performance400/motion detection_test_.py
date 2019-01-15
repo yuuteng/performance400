@@ -81,6 +81,8 @@ def trajectory_filtering(m_trajectory):
     return m_filtered_trajectory
 
 
+
+
 FIRST_FRAME_INDEX = 0
 LAST_FRAME_INDEX = 210
 VIDEO_FREQUENCY = 30
@@ -93,6 +95,7 @@ video = cv2.VideoCapture('videos/runway/gauche.mp4')
 
 background = None
 trajectory = []
+
 
 for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     # On s'assure que la frame courante est bonne et nous intéresse
@@ -147,16 +150,23 @@ velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i -
             range(1, len(trajectory))]
 
 # On représente les données obtenues
-plot.subplot(2, 1, 1)
+plot.subplot(2, 2, 1)
 plot.title("Profil de position")
 plot.xlabel("Temps (s)")
 plot.ylabel("Position (m)")
 lines = plot.plot(time, trajectory)
 plot.legend([lines[0], lines[1]], ["Position suivant x", "Position suivant y"])
 
-plot.subplot(2, 1, 2)
+plot.subplot(2, 2, 2)
 plot.title("Profil de vitesse")
 plot.xlabel("Temps (s)")
 plot.ylabel("Vitesse (m/s)")
 plot.plot(time[:-1], velocity)
+
+plot.subplot(2, 2, 3)
+plot.title("Deplacement sur la piste")
+plot.xlabel("Y")
+plot.ylabel("X")
+plot.plot(np.transpose(trajectory)[0], np.transpose(trajectory)[1])
+
 plot.show()
