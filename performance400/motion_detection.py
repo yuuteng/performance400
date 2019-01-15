@@ -92,6 +92,7 @@ video = cv2.VideoCapture('videos/runway/gauche.mp4')
 
 background = None
 trajectory = []
+trajectory_camera_coord=[]
 
 for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     # On s'assure que la frame courante est bonne et nous intéresse
@@ -117,6 +118,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
             if cv2.contourArea(largest_contour) > MIN_CONTOUR_AREA:
                 xc, yc, frame = draw_position(largest_contour, frame)
                 xcc, ycc = calculate_3d_coords(xc, yc)[:2]
+                trajectory_camera_coord.append((xc, yc))
                 trajectory.append((xcc[0], ycc[0]))
                 # frame = draw_trajectory(trajectory, frame)
     else:
@@ -159,3 +161,7 @@ plot.xlabel("Temps (s)")
 plot.ylabel("Vitesse (m/s)")
 plot.plot(time[:-1], velocity)
 plot.show()
+
+#on enregistre
+np.savetxt('trajectoirecoorcamera.txt',trajectory_camera_coord)
+#attention la courbe n'est pas filtré
