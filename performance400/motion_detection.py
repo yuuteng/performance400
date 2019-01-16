@@ -43,21 +43,52 @@ def draw_trajectory(m_trajectory, m_frame, m_color=(0, 255, 0)):
 # TODO remplacer les points manquants par des interpolations
 
 # Lisse la trajectoire m_trajectory
-def trajectory_smoothing(m_trajectory, m_window_length=10, m_threshold=3):
+def trajectory_cleaning_wrong_points(m_trajectory, m_window_length=10, m_threshold=3):
     m_consecutive_squared_distances = [0]
     for j in range(1, len(m_trajectory)):
         m_consecutive_squared_distances.append(
             (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2)
     m_corrected_trajectory = []
+    m_corrected_trajectory_missing_index=[]
+    m_corrected_trajectory_suppr = []
+    m_corrected_trajectory_suppr_index=[]
     for j in range(m_window_length, len(m_trajectory) - m_window_length):
         if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
                 m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 < m_threshold * np.mean(
-            m_consecutive_squared_distances[j - m_window_length:j + m_window_length]):
+                m_consecutive_squared_distances[j - m_window_length:j + m_window_length]):
             m_corrected_trajectory.append(m_trajectory[j])
+            m_corrected_trajectory_suppr.append(m_trajectory[j])
+            m_corrected_trajectory_suppr_index.append(j)
+        else:
+            m_corrected_trajectory.append((None, None))
+            m_corrected_trajectory_missing_index.append(j)
 
     m_corrected_trajectory = trajectory_filtering(m_corrected_trajectory)
 
-    return m_corrected_trajectory
+    return m_corrected_trajectory_suppr,m_corrected_trajectory_suppr_index,m_corrected_trajectory,m_corrected_trajectory_missing_index
+
+def trajectory_reconstructing(m_trajectory):
+    a,b,c,d=trajectory_cleaning_wrong_points(m_trajectory)
+    print(d)
+    print(b)
+    Ax=np.transpose(a)[0]
+    Ay=np.transpose(a)[1]
+    Amissx=np.interp(d,b,Ax)
+    Amissy=np.interp(d,b,Ay)
+    m_merge_trajectory=c[::]
+    indexA=0
+    indexM=0
+    k=0
+    while k < len(m_merge_trajectory) and indexM<len(d) and indexA<len(b):
+        if(b[indexA]<d[indexM]):
+            m_merge_trajectory[k] = (Ax[indexA], Ay[indexA])
+            indexA+=1
+        else:
+            m_merge_trajectory[k]=(Amissx[indexM],Amissy[indexM])
+            indexM+=1
+        k+=1
+    return m_merge_trajectory
+
 
 
 # Filtre la trajectoire m_trajectory
@@ -146,12 +177,16 @@ video.release()
 cv2.destroyAllWindows()
 
 #print(corners_trajectories[0])
-
+controlplot=[]
+controlplot.append(corners_trajectories[0])
 # On lisse la trajectoire
-corners_trajectories[0] = trajectory_smoothing(corners_trajectories[0])
-corners_trajectories[1] = trajectory_smoothing(corners_trajectories[1])
-corners_trajectories[2] = trajectory_smoothing(corners_trajectories[2])
-corners_trajectories[3] = trajectory_smoothing(corners_trajectories[3])
+corners_trajectories[0] = trajectory_cleaning_wrong_points(corners_trajectories[0])[0]
+corners_trajectories[1] = trajectory_cleaning_wrong_points(corners_trajectories[1])[0]
+corners_trajectories[2] = trajectory_cleaning_wrong_points(corners_trajectories[2])[0]
+corners_trajectories[3] = trajectory_cleaning_wrong_points(corners_trajectories[3])[0]
+
+controlplot.append(corners_trajectories[0])
+controlplot.append(trajectory_reconstructing(corners_trajectories[0]))
 
 # TODO improve me
 trajectory = corners_trajectories[0]
@@ -162,31 +197,42 @@ time = np.linspace(0, size / VIDEO_FREQUENCY, size)
 velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in range(1, size)]
 
 # On représente les données obtenues
+# plot.subplot(2, 2, 1)
+# plot.title("Profil de position")
+# plot.xlabel("Temps (s)")
+# plot.ylabel("Position (m)")
+# lines = plot.plot(trajectory)
+# plot.legend(lines, ["Position suivant x", "Position suivant y"])
+#
+# plot.subplot(2, 2, 2)
+# plot.title("Profil de vitesse")
+# plot.xlabel("Temps (s)")
+# plot.ylabel("Vitesse (m/s)")
+# plot.plot(time[:-1], velocity)
+#
+#
+# plot.subplot(2, 2, 3)
+# plot.title("Deplacement sur le plan de la piste")
+# plot.xlabel("Y")
+# plot.ylabel("X")
+# plot.plot(np.transpose(trajectory)[0], np.transpose(trajectory)[1])
+#
+# plot.subplot(2, 2, 4)
+# plot.title("Test")
+# plot.xlabel("Y")
+# plot.ylabel("X")
+#plot.plot( np.transpose(corners_trajectories[1])[0])
+
+
 plot.subplot(2, 2, 1)
-plot.title("Profil de position")
-plot.xlabel("Temps (s)")
-plot.ylabel("Position (m)")
-lines = plot.plot(trajectory)
-plot.legend(lines, ["Position suivant x", "Position suivant y"])
-
+plot.plot(np.transpose(controlplot[0])[0][10:30],'r+')
 plot.subplot(2, 2, 2)
-plot.title("Profil de vitesse")
-plot.xlabel("Temps (s)")
-plot.ylabel("Vitesse (m/s)")
-plot.plot(time[:-1], velocity)
-
-
+plot.plot(np.transpose(controlplot[1])[0][10:30],'g+')
 plot.subplot(2, 2, 3)
-plot.title("Deplacement sur le plan de la piste")
-plot.xlabel("Y")
-plot.ylabel("X")
-plot.plot(np.transpose(trajectory)[0], np.transpose(trajectory)[1])
+plot.plot(np.transpose(controlplot[2])[0][10:30],'b+')
 
-plot.subplot(2, 2, 4)
-plot.title("Test")
-plot.xlabel("Y")
-plot.ylabel("X")
-plot.plot( np.transpose(corners_trajectories[1])[0])
+
+
 
 # on enregistre
 np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
