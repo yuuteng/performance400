@@ -69,8 +69,6 @@ def trajectory_cleaning_wrong_points(m_trajectory, m_window_length=10, m_thresho
 
 def trajectory_reconstructing(m_trajectory):
     a,b,c,d=trajectory_cleaning_wrong_points(m_trajectory)
-    print(d)
-    print(b)
     Ax=np.transpose(a)[0]
     Ay=np.transpose(a)[1]
     Amissx=np.interp(d,b,Ax)
