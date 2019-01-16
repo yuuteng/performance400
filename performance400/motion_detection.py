@@ -24,7 +24,7 @@ def get_frames(m_frame, m_background):
 
 # Renvoie le plus grand contours de la collection m_contours
 def get_largest_contour(m_contours):
-    m_largest_contour = contours[0]
+    m_largest_contour = m_contours[0]
 
     for m_contour in m_contours:
         if cv2.contourArea(m_contour) > cv2.contourArea(m_largest_contour):
@@ -40,9 +40,9 @@ def draw_trajectory(m_trajectory, m_frame, m_color=(0, 255, 0)):
 
     return m_frame
 
-# TODO remplacer les points manquants par des interpolations
 
-# Lisse la trajectoire m_trajectory
+
+# Enleve les pints indésirable, retourne les points et les index
 def trajectory_cleaning_wrong_points(m_trajectory, m_window_length=10, m_threshold=3):
     m_consecutive_squared_distances = [0]
     for j in range(1, len(m_trajectory)):
@@ -67,6 +67,7 @@ def trajectory_cleaning_wrong_points(m_trajectory, m_window_length=10, m_thresho
 
     return m_corrected_trajectory_suppr,m_corrected_trajectory_suppr_index,m_corrected_trajectory,m_corrected_trajectory_missing_index
 
+#utilise la fonction trajectory_cleaning et np.transpose pour ressortir une courbe lissé
 def trajectory_reconstructing(m_trajectory):
     a,b,c,d=trajectory_cleaning_wrong_points(m_trajectory)
     Ax=np.transpose(a)[0]
@@ -177,10 +178,10 @@ cv2.destroyAllWindows()
 
 
 # On lisse la trajectoire
-corners_trajectories[0] = trajectory_reconstructing(corners_trajectories[0])
-corners_trajectories[1] = trajectory_reconstructing(corners_trajectories[1])
-corners_trajectories[2] = trajectory_reconstructing(corners_trajectories[2])
-corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
+# corners_trajectories[0] = trajectory_reconstructing(corners_trajectories[0])
+# corners_trajectories[1] = trajectory_reconstructing(corners_trajectories[1])
+# corners_trajectories[2] = trajectory_reconstructing(corners_trajectories[2])
+# corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
 
 
 
