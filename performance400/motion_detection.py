@@ -42,6 +42,7 @@ def draw_trajectory(m_trajectory, m_frame, m_color=(0, 255, 0)):
 
 # TODO remplacer les points manquants par des interpolations
 
+
 # Lisse la trajectoire m_trajectory
 def trajectory_cleaning_wrong_points(m_trajectory, m_window_length=10, m_threshold=3):
     m_consecutive_squared_distances = [0]
