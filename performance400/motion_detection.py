@@ -170,23 +170,21 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     if key == ord('q'):
         break
 
-    if np.random.rand() < 0.07:
+    if i%30==0:
         print(f"{int(i / LAST_FRAME_INDEX * 100)}% done")
 
 video.release()
 cv2.destroyAllWindows()
 
-#print(corners_trajectories[0])
-controlplot=[]
-controlplot.append(corners_trajectories[0])
-# On lisse la trajectoire
-corners_trajectories[0] = trajectory_cleaning_wrong_points(corners_trajectories[0])[0]
-corners_trajectories[1] = trajectory_cleaning_wrong_points(corners_trajectories[1])[0]
-corners_trajectories[2] = trajectory_cleaning_wrong_points(corners_trajectories[2])[0]
-corners_trajectories[3] = trajectory_cleaning_wrong_points(corners_trajectories[3])[0]
 
-controlplot.append(corners_trajectories[0])
-controlplot.append(trajectory_reconstructing(corners_trajectories[0]))
+
+# On lisse la trajectoire
+corners_trajectories[0] = trajectory_reconstructing(corners_trajectories[0])
+corners_trajectories[1] = trajectory_reconstructing(corners_trajectories[1])
+corners_trajectories[2] = trajectory_reconstructing(corners_trajectories[2])
+corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
+
+
 
 # TODO improve me
 trajectory = corners_trajectories[0]
@@ -197,39 +195,39 @@ time = np.linspace(0, size / VIDEO_FREQUENCY, size)
 velocity = [np.linalg.norm(np.asarray(trajectory[i]) - np.asarray(trajectory[i - 1])) for i in range(1, size)]
 
 # On représente les données obtenues
-# plot.subplot(2, 2, 1)
-# plot.title("Profil de position")
-# plot.xlabel("Temps (s)")
-# plot.ylabel("Position (m)")
-# lines = plot.plot(trajectory)
-# plot.legend(lines, ["Position suivant x", "Position suivant y"])
-#
-# plot.subplot(2, 2, 2)
-# plot.title("Profil de vitesse")
-# plot.xlabel("Temps (s)")
-# plot.ylabel("Vitesse (m/s)")
-# plot.plot(time[:-1], velocity)
-#
-#
-# plot.subplot(2, 2, 3)
-# plot.title("Deplacement sur le plan de la piste")
-# plot.xlabel("Y")
-# plot.ylabel("X")
-# plot.plot(np.transpose(trajectory)[0], np.transpose(trajectory)[1])
-#
-# plot.subplot(2, 2, 4)
-# plot.title("Test")
-# plot.xlabel("Y")
-# plot.ylabel("X")
-#plot.plot( np.transpose(corners_trajectories[1])[0])
-
-
 plot.subplot(2, 2, 1)
-plot.plot(np.transpose(controlplot[0])[0][10:30],'r+')
+plot.title("Profil de position")
+plot.xlabel("Temps (s)")
+plot.ylabel("Position (m)")
+lines = plot.plot(trajectory)
+plot.legend(lines, ["Position suivant x", "Position suivant y"])
+
 plot.subplot(2, 2, 2)
-plot.plot(np.transpose(controlplot[1])[0][10:30],'g+')
+plot.title("Profil de vitesse")
+plot.xlabel("Temps (s)")
+plot.ylabel("Vitesse (m/s)")
+plot.plot(time[:-1], velocity)
+
+
 plot.subplot(2, 2, 3)
-plot.plot(np.transpose(controlplot[2])[0][10:30],'b+')
+plot.title("Deplacement sur le plan de la piste")
+plot.xlabel("Y")
+plot.ylabel("X")
+plot.plot(np.transpose(trajectory)[0], np.transpose(trajectory)[1])
+
+plot.subplot(2, 2, 4)
+plot.title("Test")
+plot.xlabel("Y")
+plot.ylabel("X")
+plot.plot( np.transpose(corners_trajectories[1])[0])
+
+#  decommenter pour test précision
+# plot.subplot(2, 2, 1)
+# plot.plot(np.transpose(controlplot[0])[0][20:40],'r+')
+# plot.subplot(2, 2, 2)
+# plot.plot(np.transpose(controlplot[1])[0][10:30],'g+')
+# plot.subplot(2, 2, 3)
+# plot.plot(np.transpose(controlplot[2])[0][10:30],'b+')
 
 
 
