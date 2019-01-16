@@ -110,9 +110,16 @@ MIN_CONTOUR_AREA = 2000
 GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
+
 video = cv2.VideoCapture('videos/runway/gauche.mp4')
 # video = cv2.VideoCapture('videos/runway/droite.mp4')
 # pensez à faire le changement de matrice dans find_coord_3D si on change de video
+
+frame_width = int(video.get(3))
+frame_height = int(video.get(4))
+
+video_save=out = cv2.VideoWriter('videos/Results/motion_detection.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+
 
 background = None
 
@@ -163,6 +170,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
         corners_trajectories[2].append(n)
         corners_trajectories[3].append(n)
 
+    video_save.write(frame)
     cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
     cv2.imshow("Color Frame", frame)
 
@@ -175,6 +183,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
         print(f"{int(i / LAST_FRAME_INDEX * 100)}% done")
 
 video.release()
+video_save.release()
 cv2.destroyAllWindows()
 
 
