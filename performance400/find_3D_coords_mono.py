@@ -1,5 +1,6 @@
 import numpy as np
 import time as time
+import cv2
 
 
 def calculate_3d_coords(u, v, z=0, verbose=False):
@@ -30,3 +31,4 @@ def calculate_3d_coords(u, v, z=0, verbose=False):
         print('X et Y du point', p)
 
     return p[0][0], p[1][0], p[2][0]
+
