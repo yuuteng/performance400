@@ -91,7 +91,7 @@ MIN_CONTOUR_AREA = 2000
 GAUSSIAN_BLUR = 21
 NUMBER_OF_DILATATION = 2
 
-video = cv2.VideoCapture('videos/runway/gauche.mp4')
+video = cv2.VideoCapture('videos/runway/droite.mp4')
 
 background = None
 trajectory = []

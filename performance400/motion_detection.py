@@ -24,7 +24,7 @@ def get_frames(m_frame, m_background):
 
 # Renvoie le plus grand contours de la collection m_contours
 def get_largest_contour(m_contours):
-    m_largest_contour = contours[0]
+    m_largest_contour = m_contours[0]
 
     for m_contour in m_contours:
         if cv2.contourArea(m_contour) > cv2.contourArea(m_largest_contour):
@@ -40,24 +40,54 @@ def draw_trajectory(m_trajectory, m_frame, m_color=(0, 255, 0)):
 
     return m_frame
 
-# TODO remplacer les points manquants par des interpolations
 
-# Lisse la trajectoire m_trajectory
-def trajectory_smoothing(m_trajectory, m_window_length=10, m_threshold=3):
+
+# Enleve les pints indésirable, retourne les points et les index
+def trajectory_cleaning_wrong_points(m_trajectory, m_window_length=10, m_threshold=3):
     m_consecutive_squared_distances = [0]
     for j in range(1, len(m_trajectory)):
         m_consecutive_squared_distances.append(
             (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2)
     m_corrected_trajectory = []
+    m_corrected_trajectory_missing_index=[]
+    m_corrected_trajectory_suppr = []
+    m_corrected_trajectory_suppr_index=[]
     for j in range(m_window_length, len(m_trajectory) - m_window_length):
         if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
                 m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 < m_threshold * np.mean(
-            m_consecutive_squared_distances[j - m_window_length:j + m_window_length]):
+                m_consecutive_squared_distances[j - m_window_length:j + m_window_length]):
             m_corrected_trajectory.append(m_trajectory[j])
+            m_corrected_trajectory_suppr.append(m_trajectory[j])
+            m_corrected_trajectory_suppr_index.append(j)
+        else:
+            m_corrected_trajectory.append((None, None))
+            m_corrected_trajectory_missing_index.append(j)
 
     m_corrected_trajectory = trajectory_filtering(m_corrected_trajectory)
 
-    return m_corrected_trajectory
+    return m_corrected_trajectory_suppr,m_corrected_trajectory_suppr_index,m_corrected_trajectory,m_corrected_trajectory_missing_index
+
+#utilise la fonction trajectory_cleaning et np.transpose pour ressortir une courbe lissé
+def trajectory_reconstructing(m_trajectory):
+    a,b,c,d=trajectory_cleaning_wrong_points(m_trajectory)
+    Ax=np.transpose(a)[0]
+    Ay=np.transpose(a)[1]
+    Amissx=np.interp(d,b,Ax)
+    Amissy=np.interp(d,b,Ay)
+    m_merge_trajectory=c[::]
+    indexA=0
+    indexM=0
+    k=0
+    while k < len(m_merge_trajectory) and indexM<len(d) and indexA<len(b):
+        if(b[indexA]<d[indexM]):
+            m_merge_trajectory[k] = (Ax[indexA], Ay[indexA])
+            indexA+=1
+        else:
+            m_merge_trajectory[k]=(Amissx[indexM],Amissy[indexM])
+            indexM+=1
+        k+=1
+    return m_merge_trajectory
+
 
 
 # Filtre la trajectoire m_trajectory
@@ -77,10 +107,19 @@ LAST_FRAME_INDEX = 210
 VIDEO_FREQUENCY = 30
 DETECTION_THRESHOLD = 10
 MIN_CONTOUR_AREA = 2000
-GAUSSIAN_BLUR = 21
+GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
+
 video = cv2.VideoCapture('videos/runway/gauche.mp4')
+# video = cv2.VideoCapture('videos/runway/droite.mp4')
+# pensez à faire le changement de matrice dans find_coord_3D si on change de video
+
+frame_width = int(video.get(3))
+frame_height = int(video.get(4))
+
+video_save=out = cv2.VideoWriter('videos/Results/motion_detection.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+
 
 background = None
 
@@ -131,6 +170,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
         corners_trajectories[2].append(n)
         corners_trajectories[3].append(n)
 
+    video_save.write(frame)
     cv2.namedWindow("Color Frame", cv2.WINDOW_NORMAL)
     cv2.imshow("Color Frame", frame)
 
@@ -139,19 +179,22 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     if key == ord('q'):
         break
 
-    if np.random.rand() < 0.07:
+    if i%30==0:
         print(f"{int(i / LAST_FRAME_INDEX * 100)}% done")
 
 video.release()
+video_save.release()
 cv2.destroyAllWindows()
 
-#print(corners_trajectories[0])
 
-# On lisse la trajectoire
-corners_trajectories[0] = trajectory_smoothing(corners_trajectories[0])
-corners_trajectories[1] = trajectory_smoothing(corners_trajectories[1])
-corners_trajectories[2] = trajectory_smoothing(corners_trajectories[2])
-corners_trajectories[3] = trajectory_smoothing(corners_trajectories[3])
+
+#On lisse la trajectoire
+corners_trajectories[0] = trajectory_reconstructing(corners_trajectories[0])
+corners_trajectories[1] = trajectory_reconstructing(corners_trajectories[1])
+corners_trajectories[2] = trajectory_reconstructing(corners_trajectories[2])
+corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
+
+
 
 # TODO improve me
 trajectory = corners_trajectories[0]
@@ -186,7 +229,22 @@ plot.subplot(2, 2, 4)
 plot.title("Test")
 plot.xlabel("Y")
 plot.ylabel("X")
-plot.plot( np.transpose(corners_trajectories[1])[0])
+plot.plot( np.transpose(corners_trajectories[3])[0])
+
+#
+# plot.subplot(2, 2, 1)
+# plot.plot( np.transpose(corners_trajectories[0])[0])
+#
+# plot.subplot(2, 2, 2)
+# plot.plot( np.transpose(corners_trajectories[3])[0])
+#
+# plot.subplot(2, 2, 3)
+# plot.plot( np.transpose(corners_trajectories[2])[0])
+#
+# plot.subplot(2, 2, 4)
+# plot.plot( np.transpose(corners_trajectories[1])[0])
+
+
 
 # on enregistre
 np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
