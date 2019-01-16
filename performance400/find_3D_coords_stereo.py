@@ -18,21 +18,18 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     P1 = np.zeros(shape=(3, 3))
     P2 = np.zeros(shape=(3, 3))
 
-    stereocalib_criteria = (cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 500, 1e-10)
-    stereocalib_flags = cv2.CALIB_FIX_ASPECT_RATIO | cv2.CALIB_ZERO_TANGENT_DIST | cv2.CALIB_SAME_FOCAL_LENGTH | \
-                        cv2.CALIB_RATIONAL_MODEL | cv2.CALIB_FIX_K3 | cv2.CALIB_FIX_K4 | cv2.CALIB_FIX_K5
-
+    stereo_flag = cv2.CALIB_USE_INTRINSIC_GUESS | cv2.CALIB_TILTED_MODEL | cv2.CALIB_FIX_INTRINSIC
     retval, camera_matrix_gauche, dist_coeffs_gauche, \
     camera_matrix_droite, dist_coeffs_droite, R, T, E, F = cv2.stereoCalibrate([obj_points], [img_points_gauche],
                                                                                [img_points_droite],
                                                                                camera_matrix_gauche, dist_coeffs_gauche,
                                                                                camera_matrix_droite, dist_coeffs_droite,
-                                                                               size, flags=cv2.CALIB_TILTED_MODEL,
-                                                                               criteria=stereocalib_criteria)
+                                                                               size)
 
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(camera_matrix_gauche, dist_coeffs_gauche,
                                                                       camera_matrix_droite, dist_coeffs_droite,
-                                                                      size, R, T, R1, R2, P1, P2, alpha=1)
+                                                                      size, R, T, R1, R2, P1, P2,
+                                                                      flags=cv2.CALIB_ZERO_DISPARITY, alpha=1)
     if positions_gauche == None or positions_droite == None:
         positions_gauche = img_points_gauche
         positions_droite = img_points_droite
@@ -93,7 +90,7 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     return points3D_bis
 
 
-img_gauche = cv2.imread('images/piste_camera_gauche695.jpg')
+img_gauche = cv2.imread('images/piste_camera_gauche0.jpg')
 img_droite = cv2.imread('images/piste_camera_droite548.jpg')
 
 obj_points = np.loadtxt('matrices/points/points_objet/stereo_1_obj_points')
@@ -109,7 +106,6 @@ rvec_gauche = np.loadtxt('matrices/vectors/rotation/stereo_1_gauche_rotation_vec
 rvec_droite = np.loadtxt('matrices/vectors/rotation/stereo_1_droite_rotation_vector')
 tvec_gauche = np.loadtxt('matrices/vectors/translation/stereo_1_gauche_translation_vector')
 tvec_droite = np.loadtxt('matrices/vectors/translation/stereo_1_droite_translation_vector')
-
 
 find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite, camera_matrix_gauche,
                       camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite, positions_gauche=None,
