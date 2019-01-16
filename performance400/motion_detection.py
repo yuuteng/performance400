@@ -107,10 +107,12 @@ LAST_FRAME_INDEX = 210
 VIDEO_FREQUENCY = 30
 DETECTION_THRESHOLD = 10
 MIN_CONTOUR_AREA = 2000
-GAUSSIAN_BLUR = 21
+GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
 video = cv2.VideoCapture('videos/runway/gauche.mp4')
+# video = cv2.VideoCapture('videos/runway/droite.mp4')
+# pensez à faire le changement de matrice dans find_coord_3D si on change de video
 
 background = None
 
@@ -177,11 +179,11 @@ cv2.destroyAllWindows()
 
 
 
-# On lisse la trajectoire
-# corners_trajectories[0] = trajectory_reconstructing(corners_trajectories[0])
-# corners_trajectories[1] = trajectory_reconstructing(corners_trajectories[1])
-# corners_trajectories[2] = trajectory_reconstructing(corners_trajectories[2])
-# corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
+#On lisse la trajectoire
+corners_trajectories[0] = trajectory_reconstructing(corners_trajectories[0])
+corners_trajectories[1] = trajectory_reconstructing(corners_trajectories[1])
+corners_trajectories[2] = trajectory_reconstructing(corners_trajectories[2])
+corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
 
 
 
@@ -218,16 +220,20 @@ plot.subplot(2, 2, 4)
 plot.title("Test")
 plot.xlabel("Y")
 plot.ylabel("X")
-plot.plot( np.transpose(corners_trajectories[1])[0])
+plot.plot( np.transpose(corners_trajectories[3])[0])
 
-#  decommenter pour test précision
+#
 # plot.subplot(2, 2, 1)
-# plot.plot(np.transpose(controlplot[0])[0][20:40],'r+')
+# plot.plot( np.transpose(corners_trajectories[0])[0])
+#
 # plot.subplot(2, 2, 2)
-# plot.plot(np.transpose(controlplot[1])[0][10:30],'g+')
+# plot.plot( np.transpose(corners_trajectories[3])[0])
+#
 # plot.subplot(2, 2, 3)
-# plot.plot(np.transpose(controlplot[2])[0][10:30],'b+')
-
+# plot.plot( np.transpose(corners_trajectories[2])[0])
+#
+# plot.subplot(2, 2, 4)
+# plot.plot( np.transpose(corners_trajectories[1])[0])
 
 
 
