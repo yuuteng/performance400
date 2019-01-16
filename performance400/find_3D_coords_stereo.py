@@ -18,7 +18,7 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     P1 = np.zeros(shape=(3, 3))
     P2 = np.zeros(shape=(3, 3))
 
-    stereocalib_criteria = (cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 100, 1e-5)
+    stereocalib_criteria = (cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 500, 1e-10)
     stereocalib_flags = cv2.CALIB_FIX_ASPECT_RATIO | cv2.CALIB_ZERO_TANGENT_DIST | cv2.CALIB_SAME_FOCAL_LENGTH | \
                         cv2.CALIB_RATIONAL_MODEL | cv2.CALIB_FIX_K3 | cv2.CALIB_FIX_K4 | cv2.CALIB_FIX_K5
 
@@ -27,7 +27,7 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
                                                                                [img_points_droite],
                                                                                camera_matrix_gauche, dist_coeffs_gauche,
                                                                                camera_matrix_droite, dist_coeffs_droite,
-                                                                               size, flags=stereocalib_flags,
+                                                                               size, flags=cv2.CALIB_TILTED_MODEL,
                                                                                criteria=stereocalib_criteria)
 
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(camera_matrix_gauche, dist_coeffs_gauche,
@@ -65,22 +65,24 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     if show:
         if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
             return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
+
+        fig = plt.figure()
         ax = plt.axes(projection='3d')
         ax.scatter3D(points3D.T[0, :], points3D.T[1, :], points3D.T[2, :], 'blue')
         plt.show()
 
         img_gauche = cv2.drawFrameAxes(img_gauche, camera_matrix_gauche, dist_coeffs_gauche, rvec_gauche, tvec_gauche,
                                        100)
-        img_points2, jacobian = cv2.projectPoints(obj_points, rvec_gauche, tvec_gauche,
+        img_points2, jacobian = cv2.projectPoints(points3D, rvec_gauche, tvec_gauche,
                                                   camera_matrix_gauche, dist_coeffs_gauche)
         for px in img_points2:
-            cv2.circle(img_gauche, (px[0][0], px[0][1]), 10, (255, 255, 0), 5)
+            cv2.circle(img_gauche, (px[0][0], px[0][1]), 10, (255, 255, 0), 10)
         img_droite = cv2.drawFrameAxes(img_droite, camera_matrix_droite, dist_coeffs_droite, rvec_droite, tvec_droite,
                                        100)
-        img_points3, jacobian = cv2.projectPoints(obj_points, rvec_droite, tvec_droite,
+        img_points3, jacobian = cv2.projectPoints(points3D, rvec_droite, tvec_droite,
                                                   camera_matrix_droite, dist_coeffs_droite)
         for px in img_points3:
-            cv2.circle(img_droite, (px[0][0], px[0][1]), 10, (0, 0, 255), 5)
+            cv2.circle(img_droite, (px[0][0], px[0][1]), 10, (0, 0, 255), 10)
 
         cv2.namedWindow('image gauche', cv2.WINDOW_NORMAL)
         cv2.imshow('image gauche', img_gauche)

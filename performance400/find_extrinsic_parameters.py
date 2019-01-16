@@ -17,7 +17,7 @@ def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_c
 
     retval, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera([obj_points], [img_points], size,
                                                                            camera_matrix,
-                                                                           dist_coeffs)
+                                                                           dist_coeffs, flags=cv2.CALIB_TILTED_MODEL)
 
     (rotation_matrix, _) = cv2.Rodrigues(rvecs[0])
 
@@ -47,10 +47,10 @@ def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_c
 
 
 obj_points = np.loadtxt('matrices/points/points_objet/stereo_1_obj_points')
-img_points = np.loadtxt('matrices/points/points_image/stereo_1_gauche_img_points')
-img = cv2.imread('images/piste_camera_gauche695.jpg')
-camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/stereo_1_gauche_camera_matrix')
-dist_coeffs = np.loadtxt('matrices/vectors/distortion/intrinsic/stereo_1_gauche_distortion_vector')
+img_points = np.loadtxt('matrices/points/points_image/stereo_1_droite_img_points')
+img = cv2.imread('images/piste_camera_droite548.jpg')
+camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/stereo_1_droite_camera_matrix')
+dist_coeffs = np.loadtxt('matrices/vectors/distortion/intrinsic/stereo_1_droite_distortion_vector')
 
 
-find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, True, True, 'stereo_1_gauche')
+find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, True, False, 'stereo_1_droite')

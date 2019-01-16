@@ -52,4 +52,4 @@ def find_intrinsic_parameters(targets_path='images/targets/', show=False, save=F
     return mtx, dist
 
 
-find_intrinsic_parameters('images/targets/', False, True, 'stereo_1_droite')
+find_intrinsic_parameters('images/targets/', True, True, 'stereo_1_droite')
