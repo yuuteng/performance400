@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import scipy.signal
 
-from performance400.calculate_3d_coords import calculate_3d_coords
+from performance400.find_3D_coords_mono import calculate_3d_coords
 
 
 # Détermine les formes qui ont changé par rapport à background
@@ -145,7 +145,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 video.release()
 cv2.destroyAllWindows()
 
-print(corners_trajectories[0])
+#print(corners_trajectories[0])
 
 # On lisse la trajectoire
 corners_trajectories[0] = trajectory_smoothing(corners_trajectories[0])
@@ -174,7 +174,7 @@ plot.title("Profil de vitesse")
 plot.xlabel("Temps (s)")
 plot.ylabel("Vitesse (m/s)")
 plot.plot(time[:-1], velocity)
-plot.show()
+
 
 plot.subplot(2, 2, 3)
 plot.title("Deplacement sur le plan de la piste")
@@ -186,8 +186,10 @@ plot.subplot(2, 2, 4)
 plot.title("Test")
 plot.xlabel("Y")
 plot.ylabel("X")
-plot.plot( np.transpose(corners_trajectories[1])[1])
+plot.plot( np.transpose(corners_trajectories[1])[0])
 
 # on enregistre
 np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
 # attention la courbe n'est pas filtré
+
+plot.show()
