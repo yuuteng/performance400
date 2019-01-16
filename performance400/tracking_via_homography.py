@@ -37,8 +37,10 @@ def get_flann_matches(m_H, m_left_image, m_right_image, m_kp1, m_kp2, m_des1, m_
             m_matches_mask[j] = [1, 0]
             m_good.append(m)
 
-    list.sort(m_good, key=lambda e: get_transfer_error(m_H, e, m_kp1, m_kp2))
-
+    m_filtered_good = []
+    for good in m_good:
+        if get_transfer_error(m_H, good, m_kp1, m_kp2) > 2:
+            m_filtered_good.append(good)
 
     # m_draw_params = dict(matchColor=(0, 255, 0),
     #                      singlePointColor=(255, 0, 0),
@@ -46,16 +48,27 @@ def get_flann_matches(m_H, m_left_image, m_right_image, m_kp1, m_kp2, m_des1, m_
     #                      flags=0)
 
     # m_img = cv2.drawMatchesKnn(m_left_image, m_kp1, m_right_image, m_kp2, m_matches, None, **m_draw_params)
-    m_img = cv2.drawMatches(m_left_image, m_kp1, m_right_image, m_kp2, m_good[:10], None, flags=2)
+    m_img = cv2.drawMatches(m_left_image, m_kp1, m_right_image, m_kp2, m_filtered_good, None, flags=2)
 
-    return m_good, m_img
+    return m_filtered_good, m_img
 
 
 def get_transfer_error(m_H, m_match, m_kp1, m_kp2):
     m_xp = [m_kp1[m_match.queryIdx].pt[0], m_kp1[m_match.queryIdx].pt[1], 0]
     m_xpp = [m_kp2[m_match.trainIdx].pt[0], m_kp2[m_match.trainIdx].pt[1], 0]
 
-    return np.linalg.norm(m_xp @ m_H - m_xpp) + np.linalg.norm(m_xpp @ np.linalg.inv(m_H) - m_xp)
+    m_transformed_xp = m_xp @ m_H
+    m_transformed_xp[2] = 0
+
+    m_transformed_xpp = m_xpp @ np.linalg.inv(m_H)
+    m_transformed_xpp[2] = 0
+
+    e = (np.linalg.norm(m_transformed_xp - m_xpp) * 0.001) ** 2 + (
+            np.linalg.norm(m_transformed_xpp - m_xp) * 0.001) ** 2
+
+    # print(f"{m_xp} -> {m_transformed_xp} vs {m_xpp} ; e: {e}")
+
+    return e
 
 
 left_video = cv2.VideoCapture("videos/runway/gauche.mp4")  # query
@@ -78,21 +91,24 @@ while True:
     kp1, des1 = orb.detectAndCompute(left_image, None)
     kp2, des2 = orb.detectAndCompute(right_image, None)
 
-    p1 = np.array([(1486, 270), (948, 688), (1491, 702), (1824, 490)])
-    p2 = np.array([(735, 280), (219, 788), (797, 698), (1050, 457)])
+    p1 = np.array([(735, 280), (219, 788), (797, 698), (1050, 457), (203, 473), (1054, 906), (697, 464)])
+    p2 = np.array([(1486, 270), (948, 688), (1491, 702), (1824, 490), (976, 415), (1682, 945), (1424, 454)])
 
     H, _ = cv2.findHomography(p1, p2)
 
     (matches, img) = get_flann_matches(H, left_image, right_image, kp1, kp2, des1, des2)
     # (matches, img) = get_bf_matches(H, left_image, right_image, kp1, kp2, des1, des2)
 
-    p1 = np.asarray([kp1[matches[i].queryIdx].pt for i in range(len(matches))])
-    p2 = np.asarray([kp2[matches[i].trainIdx].pt for i in range(len(matches))])
+    # p1 = np.asarray([kp1[matches[i].queryIdx].pt for i in range(len(matches))])
+    # p2 = np.asarray([kp2[matches[i].trainIdx].pt for i in range(len(matches))])
 
     # H, _ = cv2.findHomography(p1, p2)
 
     w, h = left_image.shape[:2]
-    # img = cv2.warpPerspective(right_image, H, (h, w))
+    # img = cv2.warpPerspective(left_image, H, (h, w))
+
+    # cv2.namedWindow("right", cv2.WINDOW_NORMAL)
+    # cv2.imshow("right", right_image)
 
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
     cv2.imshow("result", img)
@@ -100,7 +116,7 @@ while True:
     if cv2.waitKey(1) == ord('q'):
         break
 
-    # time.sleep(1)
+    time.sleep(3)
 
 cv2.destroyAllWindows()
 left_video.release()
