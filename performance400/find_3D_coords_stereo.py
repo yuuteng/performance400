@@ -13,8 +13,6 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     img_points_droite = np.array(img_points_droite, 'float32')
     size = img_gauche.shape[:2]
 
-    R = np.eye(3)
-    T = np.eye(3)
     R1 = np.zeros(shape=(3, 3))
     R2 = np.zeros(shape=(3, 3))
     P1 = np.zeros(shape=(3, 3))
