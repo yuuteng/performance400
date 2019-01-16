@@ -6,8 +6,8 @@ from mpl_toolkits import mplot3d
 
 def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite,
                           camera_matrix_gauche, camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite,
-                          show=False, save=False, prefix='', rvec_gauche=None, tvec_gauche=None, rvec_droite=None,
-                          tvec_droite=None):
+                          positions_gauche=None, positions_droite=None, show=False, save=False, prefix='',
+                          rvec_gauche=None, tvec_gauche=None, rvec_droite=None, tvec_droite=None):
     obj_points = np.array(obj_points, 'float32')
     img_points_gauche = np.array(img_points_gauche, 'float32')
     img_points_droite = np.array(img_points_droite, 'float32')
@@ -35,8 +35,10 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(camera_matrix_gauche, dist_coeffs_gauche,
                                                                       camera_matrix_droite, dist_coeffs_droite,
                                                                       size, R, T, R1, R2, P1, P2, alpha=1)
-
-    points4D = cv2.triangulatePoints(P1, P2, img_points_gauche.T, img_points_droite.T)
+    if positions_gauche == None or positions_droite == None:
+        positions_gauche = img_points_gauche
+        positions_droite = img_points_droite
+    points4D = cv2.triangulatePoints(P1, P2, positions_gauche.T, positions_droite.T)
     points3D = cv2.convertPointsFromHomogeneous(points4D.T)
 
     if save:
@@ -58,12 +60,12 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         np.savetxt('matrices/stereo_rectify/' + prefix + '_R_gauche', R1)
         np.savetxt('matrices/stereo_rectify/' + prefix + '_R_droite', R2)
         np.savetxt('matrices/stereo_rectify/' + prefix + '_P_gauche', P1)
-        # np.savetxt('matrices/stereo_rectify/' + prefix + '_P_droite', P2)
+        np.savetxt('matrices/stereo_rectify/' + prefix + '_P_droite', P2)
         np.savetxt('matrices/stereo_rectify/' + prefix + '_Q', Q)
         np.savetxt('matrices/points/points3D/' + prefix + '_points_3d', points3D_bis)
 
     if show:
-        if len(rvec_gauche) == 0 | len(rvec_droite) == 0 | len(tvec_gauche) == 0 | len(tvec_droite) == 0:
+        if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
             return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
         ax = plt.axes(projection='3d')
         ax.scatter3D(points3D.T[0, :], points3D.T[1, :], points3D.T[2, :], 'blue')
@@ -88,7 +90,7 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         cv2.imshow('image droite', img_droite)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-    return camera_matrix_gauche, camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite, R, T, E, F
+    return points3D_bis
 
 
 img_gauche = cv2.imread('images/piste_camera_gauche695.jpg')
@@ -110,5 +112,6 @@ tvec_droite = np.loadtxt('matrices/vectors/translation/stereo_1_droite_translati
 
 
 find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite, camera_matrix_gauche,
-                      camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite, True, True, 'stereo_1',
-                      rvec_gauche, tvec_gauche, rvec_droite, tvec_droite)
+                      camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite, positions_gauche=None,
+                      positions_droite=None, show=True, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche,
+                      tvec_gauche=tvec_gauche, rvec_droite=rvec_droite, tvec_droite=tvec_droite, )
