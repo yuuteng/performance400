@@ -42,7 +42,7 @@ def find_intrinsic_parameters(targets_path='images/targets/', show=False, save=F
                 cv2.imshow('mire cali', img)
                 cv2.waitKey(0)
 
-    (_, mtx, dist, _, _) = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
+    (retval, mtx, dist, _, _) = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
 
     if save:
         if prefix == '':
@@ -52,4 +52,4 @@ def find_intrinsic_parameters(targets_path='images/targets/', show=False, save=F
     return object_points, image_points
 
 
-find_intrinsic_parameters('images/targets/', False, True, 'stereo_2_gauche')
+find_intrinsic_parameters('images/targets/', False, False, 'stereo_2_gauche')
