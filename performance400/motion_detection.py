@@ -109,7 +109,7 @@ MIN_CONTOUR_AREA = 2000
 GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
-video = cv2.VideoCapture('videos/runway/droite.mp4')
+video = cv2.VideoCapture('videos/runway/gauche.mp4')
 # video = cv2.VideoCapture('videos/runway/droite.mp4')
 # pensez à faire le changement de matrice dans find_coord_3D si on change de video
 
@@ -193,7 +193,6 @@ corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
 # TODO improve me
 trajectory = corners_trajectories[0]
 trajectory = trajectory_filtering(trajectory)
-np.savetxt('matrices/points/positions/stereo_1_droite_positions', trajectory)
 
 size = len(trajectory)
 time = np.linspace(0, size / VIDEO_REFRESH_RATE, size)
@@ -242,7 +241,7 @@ plot.plot(np.transpose(corners_trajectories[3])[0])
 
 
 # on enregistre
-np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
+np.savetxt('matrices/points/positions/stereo_1_gauche_positions', trajectory_camera_coord)
 # attention la courbe n'est pas filtré
 
 plot.show()

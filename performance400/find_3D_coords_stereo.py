@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import math as m
+import scipy.signal
 
 
 def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite,
@@ -58,8 +59,14 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     points3D = cv2.convertPointsFromHomogeneous(points4D.T)
 
     points3D_bis = []
-    for punkt in points3D:
-        points3D_bis.append([punkt[0][0], punkt[0][1], punkt[0][2]])
+    for p in points3D:
+        points3D_bis.append(p[0])
+
+    points3D_bis = np.asarray(points3D_bis)
+
+    points3D_bis.T[0] = scipy.signal.savgol_filter(points3D_bis.T[0], 21, 5)
+    points3D_bis.T[1] = scipy.signal.savgol_filter(points3D_bis.T[1], 21, 5)
+    points3D_bis.T[2] = scipy.signal.savgol_filter(points3D_bis.T[2], 21, 5)
 
     if save:
         if prefix == '':
@@ -84,9 +91,8 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     if show:
         if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
             return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
-
         ax = plt.axes(projection='3d')
-        ax.scatter3D(points3D.T[0, :], points3D.T[1, :], points3D.T[2, :], 'blue')
+        ax.scatter3D(points3D_bis.T[0, :140], points3D_bis.T[1, :140], points3D_bis.T[2, :140], 'blue')
         ax.set_xlabel('X (m)')
         ax.set_ylabel('Y (m)')
         ax.set_zlabel('Z (m)')
@@ -94,14 +100,14 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
 
         img_gauche = cv2.drawFrameAxes(img_gauche, camera_matrix_gauche, dist_coeffs_gauche, rvec_gauche, tvec_gauche,
                                        3)
-        img_points2, jacobian = cv2.projectPoints(points3D, rvec_gauche, tvec_gauche,
+        img_points2, jacobian = cv2.projectPoints(points3D_bis, rvec_gauche, tvec_gauche,
                                                   camera_matrix_gauche, dist_coeffs_gauche)
         for px in img_points2:
             if 0 < px[0][0] < size[1] and 0 < px[0][1] < size[0]:
                 cv2.circle(img_gauche, (m.floor(px[0][0]), m.floor(px[0][1])), 3, (255, 255, 0), 20)
         img_droite = cv2.drawFrameAxes(img_droite, camera_matrix_droite, dist_coeffs_droite, rvec_droite, tvec_droite,
                                        3)
-        img_points3, jacobian = cv2.projectPoints(points3D, rvec_droite, tvec_droite,
+        img_points3, jacobian = cv2.projectPoints(points3D_bis, rvec_droite, tvec_droite,
                                                   camera_matrix_droite, dist_coeffs_droite)
         for px in img_points3:
             if 0 < px[0][0] < size[1] and 0 < px[0][1] < size[0]:
