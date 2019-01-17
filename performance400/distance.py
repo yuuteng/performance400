@@ -1,11 +1,8 @@
 # import the necessary packages
 from __future__ import print_function
-from imutils.object_detection import non_max_suppression
-from imutils import paths
-import numpy as np
-import argparse
-import imutils
+
 import cv2
+import imutils
 
 cap = cv2.VideoCapture(0)
 
@@ -14,7 +11,7 @@ hog = cv2.HOGDescriptor()
 # 　使用opencv默认的SVM分类器
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
-#打开摄像头
+# 打开摄像头
 camera = cv2.VideoCapture(0)
 
 while camera.isOpened():

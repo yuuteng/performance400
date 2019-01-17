@@ -1,8 +1,12 @@
 import numpy as np
 import time as time
+import cv2
 
 
 def calculate_3d_coords(u, v, z=0, verbose=False):
+    # camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_1_droite_camera_matrix')
+    # rotation_matrix = np.loadtxt('matrices/rotation_matrix/stereo_1_droite_rotation_matrix')
+    # translation_vectors = np.loadtxt('matrices/vectors/translation/stereo_1_droite_translation_vector').reshape((3, 1))
     camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_1_gauche_camera_matrix')
     rotation_matrix = np.loadtxt('matrices/rotation_matrix/stereo_1_gauche_rotation_matrix')
     translation_vectors = np.loadtxt('matrices/vectors/translation/stereo_1_gauche_translation_vector').reshape((3, 1))
@@ -30,3 +34,4 @@ def calculate_3d_coords(u, v, z=0, verbose=False):
         print('X et Y du point', p)
 
     return p[0][0], p[1][0], p[2][0]
+

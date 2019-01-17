@@ -49,7 +49,7 @@ def find_intrinsic_parameters(targets_path='images/targets/', show=False, save=F
             return print('Veuillez saisir un prefix')
         np.savetxt('matrices/camera_matrix/intrinsic/'+prefix+'_camera_matrix', mtx)
         np.savetxt('matrices/vectors/distortion/intrinsic/'+prefix+'_distortion_vector', dist)
-    return mtx, dist
+    return object_points, image_points
 
 
-find_intrinsic_parameters('images/targets/', True, True, 'stereo_1_droite')
+find_intrinsic_parameters('images/targets/', False, True, 'stereo_2_gauche')
