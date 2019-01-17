@@ -47,11 +47,11 @@ def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_c
     return camera_matrix, dist_coeffs, rotation_matrix, rvecs[0], tvecs[0]
 
 
-obj_points = np.loadtxt('matrices/points/points_objet/stereo_1_droite_obj_points')
-img_points = np.loadtxt('matrices/points/points_image/stereo_1_droite_img_points')
-img = cv2.imread('images/piste_camera_droite548.jpg')
-camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/stereo_1_droite_camera_matrix')
-dist_coeffs = np.loadtxt('matrices/vectors/distortion/intrinsic/stereo_1_droite_distortion_vector')
+obj_points = np.loadtxt('matrices/points/points_objet/stereo_1_gauche_obj_points')
+img_points = np.loadtxt('matrices/points/points_image/stereo_1_gauche_img_points')
+img = cv2.imread('images/piste_camera_gauche0.jpg')
+camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/stereo_1_gauche_camera_matrix')
+dist_coeffs = np.loadtxt('matrices/vectors/distortion/intrinsic/stereo_1_gauche_distortion_vector')
 
 
-find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, True, True, 'stereo_1_droite')
+find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, True, True, 'stereo_1_gauche')

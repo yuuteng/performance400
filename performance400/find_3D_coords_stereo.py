@@ -92,7 +92,7 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
             return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
         ax = plt.axes(projection='3d')
-        ax.scatter3D(points3D_bis.T[0, :140], points3D_bis.T[1, :140], points3D_bis.T[2, :140], 'blue')
+        ax.scatter3D(points3D_bis.T[0, :], points3D_bis.T[1, :], points3D_bis.T[2, :], 'blue')
         ax.set_xlabel('X (m)')
         ax.set_ylabel('Y (m)')
         ax.set_zlabel('Z (m)')
