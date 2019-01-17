@@ -103,7 +103,6 @@ while True:
     # p2 = np.asarray([kp2[matches[i].trainIdx].pt for i in range(len(matches))])
 
     # H, _ = cv2.findHomography(p1, p2)
-
     w, h = left_image.shape[:2]
     # img = cv2.warpPerspective(left_image, H, (h, w))
 
