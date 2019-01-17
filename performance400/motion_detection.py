@@ -192,6 +192,7 @@ corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
 
 # TODO improve me
 trajectory = corners_trajectories[0]
+trajectory = trajectory_filtering(trajectory)
 
 size = len(trajectory)
 time = np.linspace(0, size / VIDEO_REFRESH_RATE, size)
@@ -240,7 +241,7 @@ plot.plot(np.transpose(corners_trajectories[3])[0])
 
 
 # on enregistre
-np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
+np.savetxt('matrices/points/positions/stereo_1_gauche_positions', trajectory_camera_coord)
 # attention la courbe n'est pas filtré
 
 plot.show()
