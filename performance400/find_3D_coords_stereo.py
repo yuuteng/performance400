@@ -165,15 +165,6 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-        count=0
-        indexinterdit = np.sort(indexinterdit)
-        print(indexinterdit)
-        for i in indexinterdit:
-            points3D_bis = np.delete(points3D_bis, (i-count), axis=0)
-            count += 1
-        print(points3D_bis)
-        if save:
-            np.savetxt('matrices/points/points3D/' + prefix + '_points_3d_filtres', points3D_bis)
         if show:
             if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
                 return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
