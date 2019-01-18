@@ -22,6 +22,7 @@ def score(ancienneframes, newframes, scores):
             a_scores[ind]=0
     return a_scores
 
+
 cam1=np.load('videos/Test4Cam/frames_cam_1.npy')
 cam2=np.load('videos/Test4Cam/frames_cam_2.npy')
 cam3=np.load('videos/Test4Cam/frames_cam_3.npy')

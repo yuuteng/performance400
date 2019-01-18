@@ -5,6 +5,52 @@ from mpl_toolkits import mplot3d
 import math as m
 import scipy.signal
 
+# todo refactoriser cette merde (/!\ ce n'est pas les meme fonctions que motion detection)
+def trajectory_wrong_points(m_trajectory, m_window_length=10, m_threshold=3):
+    m_consecutive_squared_distances = [0]
+    for j in range(1, len(m_trajectory)):
+        m_consecutive_squared_distances.append(
+            (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 + (
+                        m_trajectory[j][2] - m_trajectory[j - 1][2]) ** 2)
+    m_corrected_trajectory_missing_index = []
+    for j in range(m_window_length, len(m_trajectory) - m_window_length):
+        if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
+                m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 + (
+                m_trajectory[j][2] - m_trajectory[j - 1][2] ** 2) < m_threshold * np.mean(
+            m_consecutive_squared_distances[j - m_window_length:j + m_window_length])and(m_trajectory[j][2]>-2.5):
+            continue
+        else:
+            m_corrected_trajectory_missing_index.append(j)
+    for j in range(m_window_length):
+        if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
+                m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 + (
+                m_trajectory[j][2] - m_trajectory[j - 1][2] ** 2) < m_threshold * np.mean(
+            m_consecutive_squared_distances[j:j +2* m_window_length])and(m_trajectory[j][2]>-2.5):
+            continue
+        else:
+            m_corrected_trajectory_missing_index.append(j)
+    for j in range(len(m_trajectory) - m_window_length,len(m_trajectory)):
+        if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
+                m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 + (
+                m_trajectory[j][2] - m_trajectory[j - 1][2] ** 2) < m_threshold * np.mean(
+            m_consecutive_squared_distances[j -2* m_window_length:j])and(m_trajectory[j][2]>-2.5):
+            continue
+        else:
+            m_corrected_trajectory_missing_index.append(j)
+
+    return m_corrected_trajectory_missing_index
+
+def trajectory_filtering(m_trajectory):
+        m_shaped_trajectory = np.transpose(np.asarray(m_trajectory))
+        m_filtered_x = scipy.signal.savgol_filter(m_shaped_trajectory[0], 21, 5)
+        m_filtered_y = scipy.signal.savgol_filter(m_shaped_trajectory[1], 21, 5)
+        m_filtered_z = scipy.signal.savgol_filter(m_shaped_trajectory[2], 21, 5)
+
+
+        m_filtered_trajectory = [(m_filtered_x[k], m_filtered_y[k],m_filtered_z[k]) for k in range(0, len(m_filtered_x))]
+
+        return m_filtered_trajectory
+
 
 def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite,
                           camera_matrix_gauche, camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite,
@@ -102,16 +148,32 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
                                        3)
         img_points2, jacobian = cv2.projectPoints(points3D_bis, rvec_gauche, tvec_gauche,
                                                   camera_matrix_gauche, dist_coeffs_gauche)
-        for px in img_points2:
-            if 0 < px[0][0] < size[1] and 0 < px[0][1] < size[0]:
-                cv2.circle(img_gauche, (m.floor(px[0][0]), m.floor(px[0][1])), 3, (255, 255, 0), 20)
+        indexinterdit = trajectory_wrong_points(points3D_bis)
+
+        for j in range(len(img_points2)):
+            print(img_points2[j])
+            if 0 < img_points2[j][0][0] < size[1] and 0 < img_points2[j][0][1] < size[0]:
+                if indexinterdit.__contains__(j):
+                    cv2.circle(img_gauche, (m.floor((img_points2[j])[0][0]), m.floor((img_points2[j])[0][1])), 3,
+                               (0, 0, 255), 20)
+                else:
+                    cv2.circle(img_gauche, (m.floor(img_points2[j][0][0]), m.floor(img_points2[j][0][1])), 3,
+                               (255, 0, 255), 20)
+
         img_droite = cv2.drawFrameAxes(img_droite, camera_matrix_droite, dist_coeffs_droite, rvec_droite, tvec_droite,
                                        3)
         img_points3, jacobian = cv2.projectPoints(points3D_bis, rvec_droite, tvec_droite,
                                                   camera_matrix_droite, dist_coeffs_droite)
-        for px in img_points3:
-            if 0 < px[0][0] < size[1] and 0 < px[0][1] < size[0]:
-                cv2.circle(img_droite, (m.floor(px[0][0]), m.floor(px[0][1])), 3, (0, 0, 255), 20)
+
+
+
+        for j in range(len(img_points3)):
+            print(img_points3[j])
+            if 0 < img_points3[j][0][0] < size[1] and 0 < img_points3[j][0][1] < size[0]:
+                if indexinterdit.__contains__(j):
+                    cv2.circle(img_droite, (m.floor((img_points3[j])[0][0]), m.floor((img_points3[j])[0][1])), 3, (0, 0, 255), 20)
+                else:
+                    cv2.circle(img_droite, (m.floor(img_points3[j][0][0]), m.floor(img_points3[j][0][1])), 3, (255, 0, 255), 20)
 
         cv2.namedWindow('image gauche', cv2.WINDOW_NORMAL)
         cv2.imshow('image gauche', img_gauche)
