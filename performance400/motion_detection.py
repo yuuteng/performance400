@@ -161,8 +161,28 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 corners_trajectories[1].append((x2, y2))
                 corners_trajectories[2].append((x3, y3))
                 corners_trajectories[3].append((x4, y4))
+            else:
+                n = (None, None)
+                # TODO change me
+                trajectory_camera_coord.append(n)
+                corners_trajectories[0].append(n)
+                corners_trajectories[1].append(n)
+                corners_trajectories[2].append(n)
+                corners_trajectories[3].append(n)
+        else:
+            n = (None, None)
+            # TODO change me
+            trajectory_camera_coord.append(n)
+            corners_trajectories[0].append(n)
+            corners_trajectories[1].append(n)
+            corners_trajectories[2].append(n)
+            corners_trajectories[3].append(n)
+
+
     else:
         n = (None, None)
+        # TODO change me
+        trajectory_camera_coord.append(n)
         corners_trajectories[0].append(n)
         corners_trajectories[1].append(n)
         corners_trajectories[2].append(n)
@@ -185,10 +205,10 @@ video_save.release()
 cv2.destroyAllWindows()
 
 # On lisse la trajectoire
-corners_trajectories[0] = trajectory_reconstructing(corners_trajectories[0])
-corners_trajectories[1] = trajectory_reconstructing(corners_trajectories[1])
-corners_trajectories[2] = trajectory_reconstructing(corners_trajectories[2])
-corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
+corners_trajectories[0] = trajectory_filtering(corners_trajectories[0])
+corners_trajectories[1] = trajectory_filtering(corners_trajectories[1])
+corners_trajectories[2] = trajectory_filtering(corners_trajectories[2])
+corners_trajectories[3] = trajectory_filtering(corners_trajectories[3])
 
 # TODO improve me
 trajectory = corners_trajectories[0]
@@ -241,7 +261,9 @@ plot.plot(np.transpose(corners_trajectories[3])[0])
 
 
 # on enregistre
-np.savetxt('matrices/points/positions/stereo_1_gauche_positions', trajectory_camera_coord)
+print(len(trajectory_camera_coord))
+np.save('matrices/points/positions/stereo_1_gauche_positions', trajectory_camera_coord)
 # attention la courbe n'est pas filtré
 
 plot.show()
+
