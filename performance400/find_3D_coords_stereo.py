@@ -5,19 +5,20 @@ from mpl_toolkits import mplot3d
 import math as m
 import scipy.signal
 
+
 # todo refactoriser cette merde (/!\ ce n'est pas les meme fonctions que motion detection)
 def trajectory_wrong_points(m_trajectory, m_window_length=10, m_threshold=3):
     m_consecutive_squared_distances = [0]
     for j in range(1, len(m_trajectory)):
         m_consecutive_squared_distances.append(
             (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 + (
-                        m_trajectory[j][2] - m_trajectory[j - 1][2]) ** 2)
+                    m_trajectory[j][2] - m_trajectory[j - 1][2]) ** 2)
     m_corrected_trajectory_missing_index = []
     for j in range(m_window_length, len(m_trajectory) - m_window_length):
         if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
                 m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 + (
                 m_trajectory[j][2] - m_trajectory[j - 1][2] ** 2) < m_threshold * np.mean(
-            m_consecutive_squared_distances[j - m_window_length:j + m_window_length])and(m_trajectory[j][2]>-2.5):
+            m_consecutive_squared_distances[j - m_window_length:j + m_window_length]) and (m_trajectory[j][2] > -2.5):
             continue
         else:
             m_corrected_trajectory_missing_index.append(j)
@@ -25,25 +26,26 @@ def trajectory_wrong_points(m_trajectory, m_window_length=10, m_threshold=3):
         if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
                 m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 + (
                 m_trajectory[j][2] - m_trajectory[j - 1][2] ** 2) < m_threshold * np.mean(
-            m_consecutive_squared_distances[j:j +2* m_window_length])and(m_trajectory[j][2]>-2.5):
+            m_consecutive_squared_distances[j:j + 2 * m_window_length]) and (m_trajectory[j][2] > -2.5):
             continue
         else:
             m_corrected_trajectory_missing_index.append(j)
-    for j in range(len(m_trajectory) - m_window_length,len(m_trajectory)):
+    for j in range(len(m_trajectory) - m_window_length, len(m_trajectory)):
         if (m_trajectory[j][0] - m_trajectory[j - 1][0]) ** 2 + (
                 m_trajectory[j][1] - m_trajectory[j - 1][1]) ** 2 + (
                 m_trajectory[j][2] - m_trajectory[j - 1][2] ** 2) < m_threshold * np.mean(
-            m_consecutive_squared_distances[j -2* m_window_length:j])and(m_trajectory[j][2]>-2.5):
+            m_consecutive_squared_distances[j - 2 * m_window_length:j]) and (m_trajectory[j][2] > -2.5):
             continue
         else:
             m_corrected_trajectory_missing_index.append(j)
 
     return m_corrected_trajectory_missing_index
 
+
 def trajectory_filtering(m_trajectory):
-        m_trajectory.T[0] = scipy.signal.savgol_filter(m_trajectory.T[0], 21, 5)
-        m_trajectory.T[1] = scipy.signal.savgol_filter(m_trajectory.T[1], 21, 5)
-        m_trajectory.T[2] = scipy.signal.savgol_filter(m_trajectory.T[2], 21, 5)
+    m_trajectory.T[0] = scipy.signal.savgol_filter(m_trajectory.T[0], 21, 5)
+    m_trajectory.T[1] = scipy.signal.savgol_filter(m_trajectory.T[1], 21, 5)
+    m_trajectory.T[2] = scipy.signal.savgol_filter(m_trajectory.T[2], 21, 5)
 
 
 def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite,
@@ -92,10 +94,18 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     # print(projection_matrix_2)
     # print('P2_2')
     # print(P2)
+    ind_none = []
+    count = 0;
+    for n in range(len(positions_gauche)):
+        if positions_gauche[n].__contains__(n) or positions_gauche[n].__contains__(n):
+            ind_none.append(n)
+    for k in ind_none:
+        np.delete(positions_gauche, k - count)
+        np.delete(positions_gauche, k - count)
+        count += 1;
 
-    ind = min(len(positions_gauche), len(positions_droite))
-    points4D = cv2.triangulatePoints(projection_matrix_1, projection_matrix_2, positions_gauche[:ind].T,
-                                     positions_droite[:ind].T)
+    points4D = cv2.triangulatePoints(projection_matrix_1, projection_matrix_2, positions_gauche.T,
+                                     positions_droite.T)
     points3D = cv2.convertPointsFromHomogeneous(points4D.T)
 
     points3D_bis = []
@@ -147,8 +157,6 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         img_points3, jacobian = cv2.projectPoints(points3D_bis, rvec_droite, tvec_droite,
                                                   camera_matrix_droite, dist_coeffs_droite)
 
-
-
         for j in range(len(img_points3)):
             if 0 < img_points3[j][0][0] < size[1] and 0 < img_points3[j][0][1] < size[0]:
                 if indexinterdit.__contains__(j):
@@ -198,11 +206,11 @@ tvec_droite = np.loadtxt('matrices/vectors/translation/stereo_1_droite_translati
 rotation_matrix_gauche = np.loadtxt('matrices/rotation_matrix/stereo_1_gauche_rotation_matrix')
 rotation_matrix_droite = np.loadtxt('matrices/rotation_matrix/stereo_1_droite_rotation_matrix')
 
-positions_gauche = np.loadtxt('matrices/points/positions/stereo_1_gauche_positions')
+positions_gauche = np.loadtxt('matrices/points/positions/stereo_1_droite_positions')
 positions_droite = np.loadtxt('matrices/points/positions/stereo_1_droite_positions')
 
 find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite, camera_matrix_gauche,
                       camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite, rotation_matrix_gauche,
                       rotation_matrix_droite, positions_gauche=positions_gauche, positions_droite=positions_droite,
-                      show=False, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche, tvec_gauche=tvec_gauche,
+                      show=True, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche, tvec_gauche=tvec_gauche,
                       rvec_droite=rvec_droite, tvec_droite=tvec_droite)
