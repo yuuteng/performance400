@@ -41,15 +41,9 @@ def trajectory_wrong_points(m_trajectory, m_window_length=10, m_threshold=3):
     return m_corrected_trajectory_missing_index
 
 def trajectory_filtering(m_trajectory):
-        m_shaped_trajectory = np.transpose(np.asarray(m_trajectory))
-        m_filtered_x = scipy.signal.savgol_filter(m_shaped_trajectory[0], 21, 5)
-        m_filtered_y = scipy.signal.savgol_filter(m_shaped_trajectory[1], 21, 5)
-        m_filtered_z = scipy.signal.savgol_filter(m_shaped_trajectory[2], 21, 5)
-
-
-        m_filtered_trajectory = [(m_filtered_x[k], m_filtered_y[k],m_filtered_z[k]) for k in range(0, len(m_filtered_x))]
-
-        return m_filtered_trajectory
+        m_trajectory.T[0] = scipy.signal.savgol_filter(m_trajectory.T[0], 21, 5)
+        m_trajectory.T[1] = scipy.signal.savgol_filter(m_trajectory.T[1], 21, 5)
+        m_trajectory.T[2] = scipy.signal.savgol_filter(m_trajectory.T[2], 21, 5)
 
 
 def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite,
@@ -110,9 +104,7 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
 
     points3D_bis = np.asarray(points3D_bis)
 
-    points3D_bis.T[0] = scipy.signal.savgol_filter(points3D_bis.T[0], 21, 5)
-    points3D_bis.T[1] = scipy.signal.savgol_filter(points3D_bis.T[1], 21, 5)
-    points3D_bis.T[2] = scipy.signal.savgol_filter(points3D_bis.T[2], 21, 5)
+    trajectory_filtering(points3D_bis)
 
     if save:
         if prefix == '':
@@ -135,15 +127,6 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         np.savetxt('matrices/points/points3D/' + prefix + '_points_3d', points3D_bis)
 
     if show:
-        if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
-            return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
-        ax = plt.axes(projection='3d')
-        ax.scatter3D(points3D_bis.T[0, :], points3D_bis.T[1, :], points3D_bis.T[2, :], 'blue')
-        ax.set_xlabel('X (m)')
-        ax.set_ylabel('Y (m)')
-        ax.set_zlabel('Z (m)')
-        plt.show()
-
         img_gauche = cv2.drawFrameAxes(img_gauche, camera_matrix_gauche, dist_coeffs_gauche, rvec_gauche, tvec_gauche,
                                        3)
         img_points2, jacobian = cv2.projectPoints(points3D_bis, rvec_gauche, tvec_gauche,
@@ -151,14 +134,13 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         indexinterdit = trajectory_wrong_points(points3D_bis)
 
         for j in range(len(img_points2)):
-            print(img_points2[j])
             if 0 < img_points2[j][0][0] < size[1] and 0 < img_points2[j][0][1] < size[0]:
                 if indexinterdit.__contains__(j):
                     cv2.circle(img_gauche, (m.floor((img_points2[j])[0][0]), m.floor((img_points2[j])[0][1])), 3,
                                (0, 0, 255), 20)
                 else:
                     cv2.circle(img_gauche, (m.floor(img_points2[j][0][0]), m.floor(img_points2[j][0][1])), 3,
-                               (255, 0, 255), 20)
+                               (255, 0, 0), 20)
 
         img_droite = cv2.drawFrameAxes(img_droite, camera_matrix_droite, dist_coeffs_droite, rvec_droite, tvec_droite,
                                        3)
@@ -168,12 +150,13 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
 
 
         for j in range(len(img_points3)):
-            print(img_points3[j])
             if 0 < img_points3[j][0][0] < size[1] and 0 < img_points3[j][0][1] < size[0]:
                 if indexinterdit.__contains__(j):
-                    cv2.circle(img_droite, (m.floor((img_points3[j])[0][0]), m.floor((img_points3[j])[0][1])), 3, (0, 0, 255), 20)
+                    cv2.circle(img_droite, (m.floor(img_points3[j][0][0]), m.floor(img_points3[j][0][1])),
+                               3, (0, 0, 255), 20)
                 else:
-                    cv2.circle(img_droite, (m.floor(img_points3[j][0][0]), m.floor(img_points3[j][0][1])), 3, (255, 0, 255), 20)
+                    cv2.circle(img_droite, (m.floor(img_points3[j][0][0]), m.floor(img_points3[j][0][1])),
+                               3, (255, 0, 0), 20)
 
         cv2.namedWindow('image gauche', cv2.WINDOW_NORMAL)
         cv2.imshow('image gauche', img_gauche)
@@ -181,6 +164,17 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         cv2.imshow('image droite', img_droite)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+        if show:
+            if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
+                return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.scatter3D(points3D_bis.T[0, :], points3D_bis.T[1, :], points3D_bis.T[2, :], 'blue')
+            ax.set_xlabel('X (m)')
+            ax.set_ylabel('Y (m)')
+            ax.set_zlabel('Z (m)')
+            plt.show()
     return points3D_bis
 
 
@@ -210,5 +204,5 @@ positions_droite = np.loadtxt('matrices/points/positions/stereo_1_droite_positio
 find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite, camera_matrix_gauche,
                       camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite, rotation_matrix_gauche,
                       rotation_matrix_droite, positions_gauche=positions_gauche, positions_droite=positions_droite,
-                      show=True, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche, tvec_gauche=tvec_gauche,
+                      show=False, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche, tvec_gauche=tvec_gauche,
                       rvec_droite=rvec_droite, tvec_droite=tvec_droite)

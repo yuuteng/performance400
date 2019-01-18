@@ -213,6 +213,7 @@ corners_trajectories[3] = trajectory_filtering(corners_trajectories[3])
 # TODO improve me
 trajectory = corners_trajectories[0]
 trajectory = trajectory_filtering(trajectory)
+print(trajectory)
 
 size = len(trajectory)
 time = np.linspace(0, size / VIDEO_REFRESH_RATE, size)
