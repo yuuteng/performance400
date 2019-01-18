@@ -126,7 +126,7 @@ while True:
     H2, _ = cv2.findHomography(left_points, right_points)
 
     w, h = left_image.shape[:2]
-    img = cv2.warpPerspective(left_image, H2, (h, w))
+    # img = cv2.warpPerspective(left_image, H2, (h, w))
 
     # cv2.namedWindow("right", cv2.WINDOW_NORMAL)
     # cv2.imshow("right", right_image)
