@@ -109,7 +109,8 @@ MIN_CONTOUR_AREA = 2000
 GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
-video = cv2.VideoCapture('videos/runway/gauche.mp4')
+droiteougauche='droite'
+video = cv2.VideoCapture('videos/runway/'+droiteougauche+'.mp4')
 # video = cv2.VideoCapture('videos/runway/droite.mp4')
 # pensez à faire le changement de matrice dans find_coord_3D si on change de video
 
@@ -162,7 +163,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 corners_trajectories[2].append((x3, y3))
                 corners_trajectories[3].append((x4, y4))
             else:
-                n = (None, None)
+                n = (1e17, 1e17)
                 # TODO change me
                 trajectory_camera_coord.append(n)
                 corners_trajectories[0].append(n)
@@ -170,7 +171,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 corners_trajectories[2].append(n)
                 corners_trajectories[3].append(n)
         else:
-            n = (None, None)
+            n = (1e17, 1e17)
             # TODO change me
             trajectory_camera_coord.append(n)
             corners_trajectories[0].append(n)
@@ -180,7 +181,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
 
 
     else:
-        n = (None, None)
+        n = (1e17, 1e17)
         # TODO change me
         trajectory_camera_coord.append(n)
         corners_trajectories[0].append(n)
@@ -213,7 +214,7 @@ corners_trajectories[3] = trajectory_filtering(corners_trajectories[3])
 # TODO improve me
 trajectory = corners_trajectories[0]
 trajectory = trajectory_filtering(trajectory)
-print(trajectory)
+
 
 size = len(trajectory)
 time = np.linspace(0, size / VIDEO_REFRESH_RATE, size)
@@ -262,8 +263,8 @@ plot.plot(np.transpose(corners_trajectories[3])[0])
 
 
 # on enregistre
-print(len(trajectory_camera_coord))
-np.save('matrices/points/positions/stereo_1_gauche_positions', trajectory_camera_coord)
+print(trajectory_camera_coord)
+np.savetxt('matrices/points/positions/stereo_1_'+droiteougauche, trajectory_camera_coord)
 # attention la courbe n'est pas filtré
 
 plot.show()
