@@ -204,5 +204,5 @@ positions_droite = np.loadtxt('matrices/points/positions/stereo_1_droite_positio
 find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite, camera_matrix_gauche,
                       camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite, rotation_matrix_gauche,
                       rotation_matrix_droite, positions_gauche=positions_gauche, positions_droite=positions_droite,
-                      show=True, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche, tvec_gauche=tvec_gauche,
+                      show=False, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche, tvec_gauche=tvec_gauche,
                       rvec_droite=rvec_droite, tvec_droite=tvec_droite)
