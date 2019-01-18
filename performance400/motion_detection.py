@@ -265,7 +265,7 @@ plot.plot(np.transpose(corners_trajectories[3])[0])
 # on enregistre
 print(trajectory_camera_coord)
 np.savetxt('matrices/points/positions/stereo_1_'+droiteougauche, trajectory_camera_coord)
-# attention la courbe n'est pas filtré
+# attention la courbe n'est pas filtrée
 
 plot.show()
 
