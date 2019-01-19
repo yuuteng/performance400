@@ -42,10 +42,11 @@ for j in range(len(velocity)):
 velocity = np.array(velocity, 'float32')
 D = np.array(D, 'float32')
 
-velocity = velocity*3.6
+velocity = velocity
 
 velocity = scipy.signal.savgol_filter(velocity, 21, 5)
 D = scipy.signal.savgol_filter(D, 21, 5)
+
 
 print('moyenne vitesses', np.mean(velocity))
 print('ecart type velocity', np.std(velocity))

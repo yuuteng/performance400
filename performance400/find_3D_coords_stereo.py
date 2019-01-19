@@ -9,10 +9,11 @@ import scipy.signal
 def get_wrong_points_3d(points_3d):
     ind_none = []
     for n in range(np.shape(points_3d)[0]):
-        if abs(points_3d[n][0]) > 1000 or abs(points_3d[n][1]) > 1000 or abs(points_3d[n][2]) > 2.5:
-            print(points_3d[n][2], 'n: ', n)
+        if abs(points_3d[n][2]) > 2.5:
             ind_none.append(n)
-
+        if n > 0 and not ind_none.__contains__(n) and (
+                abs(points_3d[n][0] - points_3d[n - 1][0]) > 0.5 or abs(points_3d[n - 1][1] - points_3d[n][1]) > 0.5):
+            ind_none.append(n)
     return ind_none
 
 
@@ -71,10 +72,10 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     ind_fail = get_positions_fails(positions_gauche, positions_droite)
 
     positions_gauche, positions_droite = delete_positions_fails(positions_gauche, positions_droite, ind_fail)
-    # positions_gauche.T[0] = scipy.signal.savgol_filter(positions_gauche.T[0], 21, 5)
-    # positions_gauche.T[1] = scipy.signal.savgol_filter(positions_gauche.T[1], 21, 5)
-    # positions_droite.T[0] = scipy.signal.savgol_filter(positions_droite.T[0], 21, 5)
-    # positions_droite.T[1] = scipy.signal.savgol_filter(positions_droite.T[1], 21, 5)
+    positions_gauche.T[0] = scipy.signal.savgol_filter(positions_gauche.T[0], 21, 5)
+    positions_gauche.T[1] = scipy.signal.savgol_filter(positions_gauche.T[1], 21, 5)
+    positions_droite.T[0] = scipy.signal.savgol_filter(positions_droite.T[0], 21, 5)
+    positions_droite.T[1] = scipy.signal.savgol_filter(positions_droite.T[1], 21, 5)
 
     points_4d = cv2.triangulatePoints(projection_matrix_1, projection_matrix_2, positions_gauche.T,
                                       positions_droite.T)
@@ -140,8 +141,6 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
     for x in ind_fail:
         points_3d_bis = np.append(np.append(points_3d_bis[:x], [[1e17, 1e17, 1e17]], axis=0),
                                   points_3d_bis[x:], axis=0)
-    print(ind_fail)
-    print(ind_none)
     if save:
         if prefix == '':
             return print('Veuillez saisir un prefix')
@@ -169,11 +168,11 @@ tvec_droite = np.loadtxt('matrices/vectors/translation/stereo_1_droite_translati
 rotation_matrix_gauche = np.loadtxt('matrices/rotation_matrix/stereo_1_gauche_rotation_matrix')
 rotation_matrix_droite = np.loadtxt('matrices/rotation_matrix/stereo_1_droite_rotation_matrix')
 
-positions_gauche = np.loadtxt('matrices/points/positions/stereo_1_gauche_positions')
-positions_droite = np.loadtxt('matrices/points/positions/stereo_1_droite_positions')
+positions_gauche = np.loadtxt('matrices/points/positions/stereo_1_homo_gauche_positions')
+positions_droite = np.loadtxt('matrices/points/positions/stereo_1_homo_droite_positions')
 
 find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite, camera_matrix_gauche,
                       camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite, rotation_matrix_gauche,
                       rotation_matrix_droite, positions_gauche=positions_gauche, positions_droite=positions_droite,
-                      show=False, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche, tvec_gauche=tvec_gauche,
+                      show=True, save=True, prefix='stereo_1', rvec_gauche=rvec_gauche, tvec_gauche=tvec_gauche,
                       rvec_droite=rvec_droite, tvec_droite=tvec_droite)
