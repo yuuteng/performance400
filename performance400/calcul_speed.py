@@ -35,7 +35,7 @@ for j in range(len(velocity)):
     if set.get(j + 2) is not None:
         sum += set.get(j + 2)
     if sum is not None and sum > 0:
-        velocity[j] = velocity[j] * 2 / (sum)
+        velocity[j] = velocity[j] * 2 / (sum+2)
     sum = 0
 
 
