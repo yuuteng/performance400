@@ -10,6 +10,7 @@ left_calibration_points = np.array(
 right_calibration_points = np.array(
     [(1486, 270), (948, 688), (1491, 702), (1682, 945), (848, 886)]) * 2
 H = np.eye(3)
+count = 0
 
 
 def get_bf_matches(m_H, m_left_image, m_right_image, m_kp1, m_kp2, m_des1, m_des2):
@@ -22,14 +23,23 @@ def get_bf_matches(m_H, m_left_image, m_right_image, m_kp1, m_kp2, m_des1, m_des
     m_good = []
     m_best = []
     e = []
+    count2 = 0
     for match in m_matches:
         m_good.append(match)
         e.append(get_transfer_error(m_H, match, m_kp1, m_kp2))
-    for i in range(len(e)):
-        if e[i] == min(e):
-            m_best.append(m_good[i])
+    length = len(m_good)
+    ind1 = 0
+    ind2 = 0
+    while ind2 < length:
+        if e[ind1] == min(e):
+            m_best.append(m_good[ind2])
+            e.remove(min(e))
+            count2 += 1
+            ind1 -= 1
+        ind1 += 1
+        ind2 += 1
+        if count2 > 0:
             break
-
     return m_best
 
 
@@ -206,7 +216,6 @@ corners_trajectories_gauche = [[], [], [], []]
 corners_trajectories_droite = [[], [], [], []]  # Top left hand corner then CCW
 trajectory_camera_coord_gauche = [[]]
 trajectory_camera_coord_droite = [[]]
-count = 0
 
 for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     # On s'assure que la frame courante est bonne et nous intéresse
@@ -273,5 +282,5 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                     trajectory_camera_coord_droite = np.append(trajectory_camera_coord_droite, right_point, axis=0)
 
 
-np.savetxt('matrices/points/positions/stereo_1_homo_gauche_positions', trajectory_camera_coord_gauche)
-np.savetxt('matrices/points/positions/stereo_1_homo_droite_positions', trajectory_camera_coord_droite)
+# np.savetxt('matrices/points/positions/stereo_1_homo_gauche_positions', trajectory_camera_coord_gauche)
+# np.savetxt('matrices/points/positions/stereo_1_homo_droite_positions', trajectory_camera_coord_droite)
