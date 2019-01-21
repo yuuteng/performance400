@@ -12,7 +12,7 @@ def get_wrong_points_3d(points_3d):
         if abs(points_3d[n][2]) > 2.5:
             ind_none.append(n)
         if n > 0 and not ind_none.__contains__(n) and (
-                abs(points_3d[n][0] - points_3d[n - 1][0]) > 0.5 or abs(points_3d[n - 1][1] - points_3d[n][1]) > 0.5):
+                abs(points_3d[n][0] - points_3d[n - 1][0]) > 0.5 or abs(points_3d[n][1] - points_3d[n - 1][1]) > 0.5):
             ind_none.append(n)
     return ind_none
 
@@ -51,14 +51,10 @@ def points_filtering(points_3d):
     points_3d.T[2] = scipy.signal.savgol_filter(points_3d.T[2], 21, 5)
 
 
-def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche, img_points_droite,
-                          camera_matrix_gauche, camera_matrix_droite, dist_coeffs_gauche, dist_coeffs_droite,
-                          rotation_matrix_gauche, rotation_matrix_droite,
+def find_3d_coords_stereo(img_gauche, img_droite, camera_matrix_gauche, camera_matrix_droite, dist_coeffs_gauche,
+                          dist_coeffs_droite, rotation_matrix_gauche, rotation_matrix_droite,
                           positions_gauche, positions_droite, show=False, save=False, prefix='',
                           rvec_gauche=None, tvec_gauche=None, rvec_droite=None, tvec_droite=None):
-    obj_points = np.array(obj_points, 'float32')
-    img_points_gauche = np.array(img_points_gauche, 'float32')
-    img_points_droite = np.array(img_points_droite, 'float32')
     size = img_gauche.shape[:2]
 
     tvec_gauche = np.array([tvec_gauche])
@@ -90,7 +86,7 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
 
     if show:
         img_gauche = cv2.drawFrameAxes(img_gauche, camera_matrix_gauche, dist_coeffs_gauche, rvec_gauche, tvec_gauche,
-                                       3)
+                                       1)
         img_points2, jacobian = cv2.projectPoints(points_3d_bis, rvec_gauche, tvec_gauche,
                                                   camera_matrix_gauche, dist_coeffs_gauche)
 
@@ -104,7 +100,7 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
                                (255, 0, 0), 20)
 
         img_droite = cv2.drawFrameAxes(img_droite, camera_matrix_droite, dist_coeffs_droite, rvec_droite, tvec_droite,
-                                       3)
+                                       2)
         img_points3, jacobian = cv2.projectPoints(points_3d_bis, rvec_droite, tvec_droite,
                                                   camera_matrix_droite, dist_coeffs_droite)
 
@@ -147,3 +143,33 @@ def find_3d_coords_stereo(img_gauche, img_droite, obj_points, img_points_gauche,
         np.savetxt('matrices/points/points3D/' + prefix + '_points_3d', points_3d_bis)
     return points_3d_bis
 
+
+img_gauche = cv2.imread('images/piste_camera_gauche0.jpg')
+img_droite = cv2.imread('images/piste_camera_droite548.jpg')
+
+camera_matrix_gauche = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_1_gauche_camera_matrix')
+camera_matrix_droite = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_1_droite_camera_matrix')
+dist_coeffs_gauche = np.loadtxt('matrices/vectors/distortion/extrinsic/stereo_1_gauche_distortion_vector')
+dist_coeffs_droite = np.loadtxt('matrices/vectors/distortion/extrinsic/stereo_1_droite_distortion_vector')
+
+rvec_gauche = np.loadtxt('matrices/vectors/rotation/stereo_1_gauche_rotation_vector')
+rvec_droite = np.loadtxt('matrices/vectors/rotation/stereo_1_droite_rotation_vector')
+tvec_gauche = np.loadtxt('matrices/vectors/translation/stereo_1_gauche_translation_vector')
+tvec_droite = np.loadtxt('matrices/vectors/translation/stereo_1_droite_translation_vector')
+
+rotation_matrix_gauche = np.loadtxt('matrices/rotation_matrix/stereo_1_gauche_rotation_matrix')
+rotation_matrix_droite = np.loadtxt('matrices/rotation_matrix/stereo_1_droite_rotation_matrix')
+
+positions_gauche = np.loadtxt('matrices/points/positions/stereo_1_homo_gauche_positions0')
+positions_droite = np.loadtxt('matrices/points/positions/stereo_1_homo_droite_positions0')
+
+points_3d = find_3d_coords_stereo(img_gauche, img_droite,
+                                  camera_matrix_gauche, camera_matrix_droite,
+                                  dist_coeffs_gauche, dist_coeffs_droite,
+                                  rotation_matrix_gauche, rotation_matrix_droite,
+                                  positions_gauche=positions_gauche, positions_droite=positions_droite,
+                                  show=True, save=False, prefix='stereo_1',
+                                  rvec_gauche=rvec_gauche,
+                                  tvec_gauche=tvec_gauche,
+                                  rvec_droite=rvec_droite,
+                                  tvec_droite=tvec_droite)

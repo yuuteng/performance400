@@ -11,7 +11,7 @@ right_calibration_points = np.array(
     [(1486, 270), (948, 688), (1491, 702), (1682, 945), (848, 886)]) * 2
 H = np.eye(3)
 count = 0
-nbr = 10
+nbr = 1
 
 
 def get_bf_matches(m_H, m_left_image, m_right_image, m_kp1, m_kp2, m_des1, m_des2, nbr):

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-droite_ou_gauche = 'gauche'
+droite_ou_gauche = 'droite'
 
 
 def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, show=True, save=False,
@@ -59,5 +59,5 @@ img = cv2.imread('images/piste_camera_' + doug + '.jpg')
 camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/stereo_1_' + droite_ou_gauche + '_camera_matrix')
 dist_coeffs = np.loadtxt('matrices/vectors/distortion/intrinsic/stereo_1_' + droite_ou_gauche + '_distortion_vector')
 
-find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, True, False,
-                          'stereo_1_' + droite_ou_gauche)
+find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, True, True,
+'stereo_1_' + droite_ou_gauche)
