@@ -194,18 +194,15 @@ def trajectory_filtering(m_trajectory):
     # return m_trajectory
 
 
+videog = cv2.VideoCapture('videos/runway/course_4_gauche_sd.mkv')
+videod = cv2.VideoCapture('videos/runway/course_4_droite_sd.mkv')
 FIRST_FRAME_INDEX = 0
-LAST_FRAME_INDEX = 210
+LAST_FRAME_INDEX = int(videod.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
 VIDEO_REFRESH_RATE = 30
 DETECTION_THRESHOLD = 10
 MIN_CONTOUR_AREA = 2000
 GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
-
-videog = cv2.VideoCapture('videos/runway/gauche.mp4')
-videod = cv2.VideoCapture('videos/runway/droite.mp4')
-# video = cv2.VideoCapture('videos/runway/droite.mp4')
-# pensez à faire le changement de matrice dans find_coord_3D si on change de video
 
 frame_width = int(videog.get(3))
 frame_height = int(videog.get(4))
@@ -255,11 +252,16 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 kp1, des1 = orb.detectAndCompute(frameg[yg:yg + hg, xg:xg + wg], None)
                 kp2, des2 = orb.detectAndCompute(framed[yd:yd + hd, xd:xd + wd], None)
                 if (kp1 is None or kp2 is None or des1 is None or des2 is None):
-                    for ind in range(nbr):
-                        trajectory_camera_coord_gauche = np.append(trajectory_camera_coord_gauche, [[1e17, 1e17]],
-                                                                   axis=0)
-                        trajectory_camera_coord_droite = np.append(trajectory_camera_coord_droite, [[1e17, 1e17]],
-                                                                   axis=0)
+                    if count > 0:
+                        for ind in range(nbr):
+                            trajectory_camera_coord_gauche = np.append(trajectory_camera_coord_gauche, [[1e17, 1e17]],
+                                                                       axis=0)
+                            trajectory_camera_coord_droite = np.append(trajectory_camera_coord_droite, [[1e17, 1e17]],
+                                                                       axis=0)
+                    if count == 0:
+                        trajectory_camera_coord_gauche = [[1e17, 1e17]]
+                        trajectory_camera_coord_droite = [[1e17, 1e17]]
+                        count += 1
                     continue
                 matches = get_bf_matches(H, frameg[yg:yg + hg, xg:xg + wg], framed[yd:yd + hd, xd:xd + wd],
                                          kp1, kp2, des1, des2, nbr)
@@ -292,8 +294,8 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 incr = 0
 
 while incr < nbr:
-    trajectory_camera_coord_gauche_bis = [trajectory_camera_coord_gauche[0+incr].tolist()]
-    trajectory_camera_coord_droite_bis = [trajectory_camera_coord_droite[0+incr].tolist()]
+    trajectory_camera_coord_gauche_bis = [trajectory_camera_coord_gauche[0 + incr].tolist()]
+    trajectory_camera_coord_droite_bis = [trajectory_camera_coord_droite[0 + incr].tolist()]
     for indice in range(1, int(len(trajectory_camera_coord_gauche) / nbr)):
         trajectory_camera_coord_gauche_bis = np.append(trajectory_camera_coord_gauche_bis,
                                                        [trajectory_camera_coord_gauche[incr + nbr * indice].tolist()],
@@ -301,8 +303,8 @@ while incr < nbr:
         trajectory_camera_coord_droite_bis = np.append(trajectory_camera_coord_droite_bis,
                                                        [trajectory_camera_coord_droite[incr + nbr * indice].tolist()],
                                                        axis=0)
-    np.savetxt('matrices/points/positions/stereo_1_homo_gauche_positions' + str(incr),
+    np.savetxt('matrices/points/positions/stereo_4_homo_gauche_positions' + str(incr),
                trajectory_camera_coord_gauche_bis)
-    np.savetxt('matrices/points/positions/stereo_1_homo_droite_positions' + str(incr),
+    np.savetxt('matrices/points/positions/stereo_4_homo_droite_positions' + str(incr),
                trajectory_camera_coord_droite_bis)
     incr += 1

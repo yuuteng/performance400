@@ -9,11 +9,21 @@ import scipy.signal
 def get_wrong_points_3d(points_3d):
     ind_none = []
     for n in range(np.shape(points_3d)[0]):
-        if abs(points_3d[n][2]) > 2.5:
+        if abs(points_3d[n][2]) > 6 or abs(points_3d[0][2]) > 1e16 or abs(points_3d[1][2]) > 1e16:
             ind_none.append(n)
         if n > 0 and not ind_none.__contains__(n) and (
                 abs(points_3d[n][0] - points_3d[n - 1][0]) > 0.5 or abs(points_3d[n][1] - points_3d[n - 1][1]) > 0.5):
             ind_none.append(n)
+        ind_none.sort()
+    return ind_none
+
+
+def get_wrong_points_3d_2(points_3d):
+    ind_none = []
+    for n in range(np.shape(points_3d)[0]):
+        if abs(points_3d[n][2]) > 1e16:
+            ind_none.append(n)
+        ind_none.sort()
     return ind_none
 
 
@@ -120,7 +130,12 @@ def find_3d_coords_stereo(img_gauche, img_droite, camera_matrix_gauche, camera_m
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+    IND_NONE = [ind_none]
     points_3d_bis = delete_wrong_points(points_3d_bis, ind_none)
+    while len(IND_NONE[-1]) > 1:
+        IND_NONE.append(get_wrong_points_3d(points_3d_bis))
+        points_3d_bis = delete_wrong_points(points_3d_bis, IND_NONE[-1])
+
     if show:
         if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
             return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
@@ -131,9 +146,11 @@ def find_3d_coords_stereo(img_gauche, img_droite, camera_matrix_gauche, camera_m
         ax.set_ylabel('Y (m)')
         ax.set_zlabel('Z (m)')
         plt.show()
-    for s in ind_none:
-        points_3d_bis = np.append(np.append(points_3d_bis[:s], [[1e17, 1e17, 1e17]], axis=0),
-                                  points_3d_bis[s:], axis=0)
+
+    for ind_nonei in IND_NONE:
+        for g in ind_nonei:
+            points_3d_bis = np.append(np.append(points_3d_bis[:g], [[1e17, 1e17, 1e17]], axis=0),
+                                      points_3d_bis[g:], axis=0)
     for x in ind_fail:
         points_3d_bis = np.append(np.append(points_3d_bis[:x], [[1e17, 1e17, 1e17]], axis=0),
                                   points_3d_bis[x:], axis=0)
@@ -163,13 +180,13 @@ rotation_matrix_droite = np.loadtxt('matrices/rotation_matrix/stereo_1_droite_ro
 positions_gauche = np.loadtxt('matrices/points/positions/stereo_1_homo_gauche_positions0')
 positions_droite = np.loadtxt('matrices/points/positions/stereo_1_homo_droite_positions0')
 
-points_3d = find_3d_coords_stereo(img_gauche, img_droite,
-                                  camera_matrix_gauche, camera_matrix_droite,
-                                  dist_coeffs_gauche, dist_coeffs_droite,
-                                  rotation_matrix_gauche, rotation_matrix_droite,
-                                  positions_gauche=positions_gauche, positions_droite=positions_droite,
-                                  show=True, save=False, prefix='stereo_1',
-                                  rvec_gauche=rvec_gauche,
-                                  tvec_gauche=tvec_gauche,
-                                  rvec_droite=rvec_droite,
-                                  tvec_droite=tvec_droite)
+# points_3d = find_3d_coords_stereo(img_gauche, img_droite,
+#                                   camera_matrix_gauche, camera_matrix_droite,
+#                                   dist_coeffs_gauche, dist_coeffs_droite,
+#                                   rotation_matrix_gauche, rotation_matrix_droite,
+#                                   positions_gauche=positions_gauche, positions_droite=positions_droite,
+#                                   show=True, save=True, prefix='stereo_1',
+#                                   rvec_gauche=rvec_gauche,
+#                                   tvec_gauche=tvec_gauche,
+#                                   rvec_droite=rvec_droite,
+#                                   tvec_droite=tvec_droite)

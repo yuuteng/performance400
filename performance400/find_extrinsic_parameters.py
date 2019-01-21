@@ -16,7 +16,7 @@ def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_c
     img_points = np.array(img_points, 'float32')
     size = img.shape[:2]
 
-    cali_flag = cv2.CALIB_FIX_INTRINSIC
+    cali_flag = cv2.CALIB_FIX_INTRINSIC | cv2.CALIB_CB_NORMALIZE_IMAGE | cv2.CALIB_USE_INTRINSIC_GUESS
     retval, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera([obj_points], [img_points], size,
                                                                            camera_matrix,
                                                                            dist_coeffs, flags=cali_flag)

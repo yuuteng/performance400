@@ -8,8 +8,8 @@ def find_intrinsic_parameters(targets_path='images/targets/', show=False, save=F
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-    object_point = np.zeros((4 * 4, 3), np.float32)
-    object_point[:, :2] = np.mgrid[0:4, 0:4].T.reshape(-1, 2)
+    object_point = np.zeros((10 * 7, 3), np.float32)
+    object_point[:, :2] = np.mgrid[0:10, 0:7].T.reshape(-1, 2)
 
     # Arrays to store object points and image points from all the images.
     object_points = []  # 3d point in real world space
@@ -24,7 +24,7 @@ def find_intrinsic_parameters(targets_path='images/targets/', show=False, save=F
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         # Find the chess board corners
-        ret, corners = cv2.findChessboardCorners(gray, (4, 4), None)
+        ret, corners = cv2.findChessboardCorners(gray, (10, 7), None)
         if show:
             print(ret)
         # If found, add object points, image points (after refining them)
@@ -36,7 +36,7 @@ def find_intrinsic_parameters(targets_path='images/targets/', show=False, save=F
             image_points.append(corners2)
 
             # Draw and display the corners
-            img = cv2.drawChessboardCorners(img, (4, 4), corners2, ret)
+            img = cv2.drawChessboardCorners(img, (10, 7), corners2, ret)
             if show:
                 cv2.namedWindow("mire cali", cv2.WINDOW_NORMAL)
                 cv2.imshow('mire cali', img)
@@ -52,4 +52,4 @@ def find_intrinsic_parameters(targets_path='images/targets/', show=False, save=F
     return object_points, image_points
 
 
-find_intrinsic_parameters('images/targets/', False, False, 'stereo_2_gauche')
+find_intrinsic_parameters('images/targets/', True, True, 'stereo_3_droite')
