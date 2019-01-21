@@ -135,7 +135,6 @@ def find_3d_coords_stereo(img_gauche, img_droite, camera_matrix_gauche, camera_m
     while len(IND_NONE[-1]) > 1:
         IND_NONE.append(get_wrong_points_3d(points_3d_bis))
         points_3d_bis = delete_wrong_points(points_3d_bis, IND_NONE[-1])
-
     if show:
         if len(rvec_gauche) == 0 or len(rvec_droite) == 0 or len(tvec_gauche) == 0 or len(tvec_droite) == 0:
             return print('Veuillez donner les vecteurs de rotation et translation gauche et droite')
@@ -161,32 +160,37 @@ def find_3d_coords_stereo(img_gauche, img_droite, camera_matrix_gauche, camera_m
     return points_3d_bis
 
 
-img_gauche = cv2.imread('images/piste_camera_gauche0.jpg')
-img_droite = cv2.imread('images/piste_camera_droite548.jpg')
+video = cv2.VideoCapture("videos/runway/course_2_gauche_sd.mkv")
+img_gauche = video.read()[1]
+video.release()
+video = cv2.VideoCapture("videos/runway/course_2_droite_sd.mkv")
+img_droite = video.read()[1]
+video.release()
 
-camera_matrix_gauche = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_1_gauche_camera_matrix')
-camera_matrix_droite = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_1_droite_camera_matrix')
-dist_coeffs_gauche = np.loadtxt('matrices/vectors/distortion/extrinsic/stereo_1_gauche_distortion_vector')
-dist_coeffs_droite = np.loadtxt('matrices/vectors/distortion/extrinsic/stereo_1_droite_distortion_vector')
 
-rvec_gauche = np.loadtxt('matrices/vectors/rotation/stereo_1_gauche_rotation_vector')
-rvec_droite = np.loadtxt('matrices/vectors/rotation/stereo_1_droite_rotation_vector')
-tvec_gauche = np.loadtxt('matrices/vectors/translation/stereo_1_gauche_translation_vector')
-tvec_droite = np.loadtxt('matrices/vectors/translation/stereo_1_droite_translation_vector')
+camera_matrix_gauche = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_2_gauche_camera_matrix')
+camera_matrix_droite = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_2_droite_camera_matrix')
+dist_coeffs_gauche = np.loadtxt('matrices/vectors/distortion/extrinsic/stereo_2_gauche_distortion_vector')
+dist_coeffs_droite = np.loadtxt('matrices/vectors/distortion/extrinsic/stereo_2_droite_distortion_vector')
 
-rotation_matrix_gauche = np.loadtxt('matrices/rotation_matrix/stereo_1_gauche_rotation_matrix')
-rotation_matrix_droite = np.loadtxt('matrices/rotation_matrix/stereo_1_droite_rotation_matrix')
+rvec_gauche = np.loadtxt('matrices/vectors/rotation/stereo_2_gauche_rotation_vector')
+rvec_droite = np.loadtxt('matrices/vectors/rotation/stereo_2_droite_rotation_vector')
+tvec_gauche = np.loadtxt('matrices/vectors/translation/stereo_2_gauche_translation_vector')
+tvec_droite = np.loadtxt('matrices/vectors/translation/stereo_2_droite_translation_vector')
 
-positions_gauche = np.loadtxt('matrices/points/positions/stereo_1_homo_gauche_positions0')
-positions_droite = np.loadtxt('matrices/points/positions/stereo_1_homo_droite_positions0')
+rotation_matrix_gauche = np.loadtxt('matrices/rotation_matrix/stereo_2_gauche_rotation_matrix')
+rotation_matrix_droite = np.loadtxt('matrices/rotation_matrix/stereo_2_droite_rotation_matrix')
 
-# points_3d = find_3d_coords_stereo(img_gauche, img_droite,
-#                                   camera_matrix_gauche, camera_matrix_droite,
-#                                   dist_coeffs_gauche, dist_coeffs_droite,
-#                                   rotation_matrix_gauche, rotation_matrix_droite,
-#                                   positions_gauche=positions_gauche, positions_droite=positions_droite,
-#                                   show=True, save=True, prefix='stereo_1',
-#                                   rvec_gauche=rvec_gauche,
-#                                   tvec_gauche=tvec_gauche,
-#                                   rvec_droite=rvec_droite,
-#                                   tvec_droite=tvec_droite)
+positions_gauche = np.loadtxt('matrices/points/positions/stereo_2_gauche')
+positions_droite = np.loadtxt('matrices/points/positions/stereo_2_droite')
+
+points_3d = find_3d_coords_stereo(img_gauche, img_droite,
+                                  camera_matrix_gauche, camera_matrix_droite,
+                                  dist_coeffs_gauche, dist_coeffs_droite,
+                                  rotation_matrix_gauche, rotation_matrix_droite,
+                                  positions_gauche=positions_gauche, positions_droite=positions_droite,
+                                  show=True, save=True, prefix='stereo_2',
+                                  rvec_gauche=rvec_gauche,
+                                  tvec_gauche=tvec_gauche,
+                                  rvec_droite=rvec_droite,
+                                  tvec_droite=tvec_droite)
