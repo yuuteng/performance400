@@ -16,7 +16,7 @@ def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_c
     img_points = np.array(img_points, 'float32')
     size = img.shape[:2]
 
-    cali_flag = cv2.CALIB_FIX_INTRINSIC
+    cali_flag = cv2.CALIB_FIX_INTRINSIC | cv2.CALIB_CB_NORMALIZE_IMAGE | cv2.CALIB_USE_INTRINSIC_GUESS
     retval, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera([obj_points], [img_points], size,
                                                                            camera_matrix,
                                                                            dist_coeffs, flags=cali_flag)
@@ -53,11 +53,13 @@ if droite_ou_gauche == 'gauche':
 elif droite_ou_gauche == 'droite':
     doug = 'droite548'
 
-obj_points = np.loadtxt('matrices/points/points_objet/stereo_1_' + droite_ou_gauche + '_obj_points')
-img_points = np.loadtxt('matrices/points/points_image/stereo_1_' + droite_ou_gauche + '_img_points')
-img = cv2.imread('images/piste_camera_' + doug + '.jpg')
-camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/stereo_1_' + droite_ou_gauche + '_camera_matrix')
-dist_coeffs = np.loadtxt('matrices/vectors/distortion/intrinsic/stereo_1_' + droite_ou_gauche + '_distortion_vector')
+obj_points = np.loadtxt('matrices/points/points_objet/stereo_2_' + droite_ou_gauche + '_obj_points')
+img_points = np.loadtxt('matrices/points/points_image/stereo_2_' + droite_ou_gauche + '_img_points')
+video = cv2.VideoCapture("videos/runway/course_2_droite_sd.mkv")
+img = video.read()[1]
+video.release()
+camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/stereo_2_' + droite_ou_gauche + '_camera_matrix')
+dist_coeffs = np.loadtxt('matrices/vectors/distortion/intrinsic/stereo_2_' + droite_ou_gauche + '_distortion_vector')
 
 find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, True, True,
-'stereo_1_' + droite_ou_gauche)
+'stereo_2_' + droite_ou_gauche)
