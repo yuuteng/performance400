@@ -102,15 +102,16 @@ def trajectory_filtering(m_trajectory):
 
 
 FIRST_FRAME_INDEX = 0
-LAST_FRAME_INDEX = 210
+
 VIDEO_REFRESH_RATE = 30
 DETECTION_THRESHOLD = 10
 MIN_CONTOUR_AREA = 2000
 GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
-droiteougauche='gauche'
+droiteougauche='droite'
 video = cv2.VideoCapture('videos/runway/course_2_'+droiteougauche+'_sd.mkv')
+LAST_FRAME_INDEX = int(video.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
 # video = cv2.VideoCapture('videos/runway/droite.mp4')
 # pensez à faire le changement de matrice dans find_coord_3D si on change de video
 
@@ -156,7 +157,7 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 (x4, y4, _) = calculate_3d_coords(x + w, y)
 
                 # TODO change me
-                trajectory_camera_coord.append((x + w / 2, y + w / 2))
+                trajectory_camera_coord.append((x1, y1))
 
                 corners_trajectories[0].append((x1, y1))
                 corners_trajectories[1].append((x2, y2))
@@ -264,7 +265,7 @@ plot.plot(np.transpose(corners_trajectories[3])[0])
 
 # on enregistre
 print(trajectory_camera_coord)
-# np.savetxt('matrices/points/positions/stereo_2_'+droiteougauche+'_positions, trajectory_camera_coord)
+np.savetxt('matrices/points/positions/stereo_2_'+droiteougauche+'_positions', trajectory_camera_coord)
 # attention la courbe n'est pas filtrée
 
 plot.show()
