@@ -41,12 +41,12 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     extrinsic_right_translation_vector = extrinsic_right_translation_vectors[0]
 
     np.save('matrices/camera_matrix/extrinsic/extrinsic_left_camera_matrix', extrinsic_left_camera_matrix)
-    np.save('matrices/distortion_vector/extrinsic/extrinsic_left_distortion_vector',
+    np.save('matrices/distortion_vectors/extrinsic/extrinsic_left_distortion_vector',
             extrinsic_left_distortion_vector)
     np.save('matrices/rotation_vector/extrinsic_left_rotation_vector', extrinsic_left_rotation_vector)
     np.save('matrices/translation_vector/extrinsic_left_translation_vector', extrinsic_left_translation_vector)
     np.save('matrices/camera_matrix/extrinsic/extrinsic_right_camera_matrix', extrinsic_right_camera_matrix)
-    np.save('matrices/distortion_vector/extrinsic/extrinsic_right_distortion_vector',
+    np.save('matrices/distortion_vectors/extrinsic/extrinsic_right_distortion_vector',
             extrinsic_right_distortion_vector)
     np.save('matrices/rotation_vector/extrinsic_right_rotation_vector', extrinsic_right_rotation_vector)
     np.save('matrices/translation_vector/extrinsic_right_translation_vector', extrinsic_right_translation_vector)
@@ -120,13 +120,13 @@ def draw_keypoints(image, keypoints, current):
 def get_extrinsic_parameters(right_camera):
     if right_camera:
         extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/extrinsic_right_camera_matrix')
-        extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vector/extrinsic/'
+        extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/'
                                                  'extrinsic_right_distortion_vector')
         extrinsic_rotation_vector = np.loadtxt('matrices/rotation_vector/extrinsic_right_rotation_vector')
         extrinsic_translation_vector = np.loadtxt('matrices/translation_vector/extrinsic_right_translation_vector')
     else:
         extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/extrinsic_left_camera_matrix')
-        extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vector/extrinsic/'
+        extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/'
                                                  'extrinsic_left_distortion_vector')
         extrinsic_rotation_vector = np.loadtxt('matrices/rotation_vector/extrinsic_left_rotation_vector')
         extrinsic_translation_vector = np.loadtxt('matrices/translation_vector/extrinsic_left_translation_vector')

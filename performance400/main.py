@@ -16,7 +16,7 @@ right_check, right_background = right_video.read()
 if PRE_PROCESS:
     left_targets = glob.glob("images/targets/left/*.jpg")
     right_targets = glob.glob("images/targets/right/*.jpg")
-    intrinsic_pre_autocalibration.autocalibrate(left_targets, right_targets, 10, 7)
+    # intrinsic_pre_autocalibration.autocalibrate(left_targets, right_targets, 10, 7)
 
     left_object_points = np.load("matrices/points/object_points/left")
     right_object_points = np.load("matrices/points/object_points/right")
