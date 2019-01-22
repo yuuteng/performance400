@@ -40,7 +40,7 @@ def autocalibration_via_poi(image, known_coordinates, pois, sensitivity):
                     break
                 elif key == 13:  # enter
                     res[1].append(
-                        (int(x - sensitivity + kp[current].pt[0]), int(y - sensitivity + kp[current].pt[1]), 0))
+                        (int(x - sensitivity + kp[current].pt[0]), int(y - sensitivity + kp[current].pt[1])))
                     break
                 elif key == ord('s'):
                     res[0].pop(j - removed)
@@ -103,18 +103,18 @@ def mark_pois(image):
     return res
 
 
-video = cv.VideoCapture("videos/runway/Course 4 gauche SD.mkv")
+video = cv.VideoCapture("videos/runway/Course 2 droite SD.mkv")
 img = video.read()[1]
 video.release()
 n_pois = mark_pois(img.copy())
-dx = 0.5
+dx = 1.815
 dy = 1.22
 kc = []
-for i in range(10):
-    kc.append((int(i / 5) * dx, i % 5 * dy, 0))
+for i in range(12):
+    kc.append((int(i / 4) * dx + 3, i % 4 * dy + dy, 0))
 known, kp = autocalibration_via_poi(img, kc, n_pois, 40)
-np.savetxt("matrices/points/points_objet/stereo_4_gauche_obj_points", np.array(known))
-np.savetxt("matrices/points/points_image/stereo_4_gauche_img_points", np.array(kp))
+np.savetxt("matrices/points/points_objet/stereo_2_droite_obj_points", np.array(known))
+np.savetxt("matrices/points/points_image/stereo_2_droite_img_points", np.array(kp))
 # cv.namedWindow("img",cv.WINDOW_NORMAL)
 # cv.imshow("img",cv.WINDOW_NORMAL)
 # print(cv.waitKey(0))

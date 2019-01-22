@@ -1,7 +1,5 @@
 import cv2
 import numpy as np
-import time
-from performance400.find_3D_coords_mono import calculate_3d_coords
 
 
 def get_bf_matches(m_H, m_left_image, m_right_image, m_kp1, m_kp2, m_des1, m_des2):
