@@ -28,7 +28,7 @@ camera_matrix[2, 2] = 1.0
 camera_matrix[0, 2] = 750.0
 camera_matrix[1, 2] = 750.0
 
-print('camera_matrix initiale')
+print('camera_matrices initiale')
 print(camera_matrix)
 
 distance_coefficients = np.zeros(4, 'float32')
@@ -39,7 +39,7 @@ retval, camera_matrix, distance_coefficients, rvecs, tvecs = cv2.calibrateCamera
                                                                                  distance_coefficients,
                                                                                  flags=cv2.CALIB_TILTED_MODEL)
 
-# retval, rvecs[0], tvecs[0] = cv2.solvePnP(obj_points, img_points, camera_matrix, dist_coefs, rvecs[0], tvecs[0],
+# retval, rvecs[0], tvecs[0] = cv2.solvePnP(obj_points, img_points, camera_matrices, dist_coefs, rvecs[0], tvecs[0],
 #                                          False, cv2.SOLVEPNP_ITERATIVE)
 
 print('retval : seuil optimal', retval)
@@ -73,7 +73,7 @@ print("total error: ", mean_error / len(object_points))
 
 rotation_matrix, jacobian = cv2.Rodrigues(rvecs[0])
 
-# retval, rvec, tvec =  cv2.solvePnP(obj_points, img_points, camera_matrix, dist_coefs, rvecs[0], tvecs[0], False, cv2.SOLVEPNP_ITERATIVE)
+# retval, rvec, tvec =  cv2.solvePnP(obj_points, img_points, camera_matrices, dist_coefs, rvecs[0], tvecs[0], False, cv2.SOLVEPNP_ITERATIVE)
 obj_points2 = [[0, 0, 10], [0, 1.22, 10], [0, 2.44, 10], [0, 3.66, 10], [0, 4.88, 10], [0, 6.1, 10], [0, 7.32, 10],
                [0, 8.54, 10], [50, 0, 10], [50, 1.22, 10], [50, 2.44, 10], [50, 3.66, 10], [50, 4.88, 10],
                [50, 6.1, 10], [50, 7.32, 10], [50, 8.54, 10], [60, 0, 10], [60, 1.22, 10], [60, 2.44, 10],
@@ -101,7 +101,7 @@ right_side_matrix = np.linalg.inv(rotation_matrix) @ tvecs[0]
 print('rotation', rotation_matrix)
 # print('gauche', left_side_matrix)
 # print('droite', right_side_matrix)
-# print('inverser matrice_camera', np.linalg.inv(camera_matrix))
+# print('inverser matrice_camera', np.linalg.inv(camera_matrices))
 
 s = (z + right_side_matrix[2] / left_side_matrix[2])
 p = np.linalg.inv(rotation_matrix) @ (s * np.linalg.inv(camera_matrix) @ uvVect - tvecs[0])

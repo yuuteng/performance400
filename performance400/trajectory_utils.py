@@ -1,7 +1,6 @@
-def get_trajectory(left_video, right_video):
+def get_trajectory(left_video, right_video, extrinsic_parameters):
     pass  # trajectory
 
 
-def draw_trajectory(background, trajectory, extrinsic_camera_matrix, extrinsic_distortion_vector,
-                    extrinsic_rotation_vector, extrinsic_translation_vector):
+def draw_trajectory(background, trajectory, right_camera, extrinsic_parameters):
     pass

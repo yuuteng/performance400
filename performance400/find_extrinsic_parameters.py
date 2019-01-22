@@ -10,8 +10,8 @@ def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_c
     if save:
         if prefix == '':
             return print('Veuillez saisir un prefix')
-        np.savetxt('matrices/points/points_image/' + prefix + '_img_points', img_points)
-        np.savetxt('matrices/points/points_objet/' + prefix + '_obj_points', obj_points)
+        np.savetxt('matrices/points/image_points/' + prefix + '_img_points', img_points)
+        np.savetxt('matrices/points/object_points/' + prefix + '_obj_points', obj_points)
 
     obj_points = np.array(obj_points, 'float32')
     img_points = np.array(img_points, 'float32')
@@ -40,7 +40,7 @@ def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_c
             mean_error += cv2.norm(img_points[i], img_points2[i][0], cv2.NORM_L2) / len(img_points2)
         print('erreur moyenne', mean_error)
     if save:
-        np.savetxt('matrices/camera_matrix/extrinsic/' + prefix + '_camera_matrix', camera_matrix)
+        np.savetxt('matrices/camera_matrices/extrinsic/' + prefix + '_camera_matrix', camera_matrix)
         np.savetxt('matrices/vectors/distortion/extrinsic/' + prefix + '_distortion_vector', dist_coeffs)
         np.savetxt('matrices/vectors/rotation/' + prefix + '_rotation_vector', rvecs[0])
         np.savetxt('matrices/vectors/translation/' + prefix + '_translation_vector', tvecs[0])
@@ -54,13 +54,13 @@ if droite_ou_gauche == 'gauche':
 elif droite_ou_gauche == 'droite':
     doug = 'droite548'
 
-obj_points = np.loadtxt('matrices/points/points_objet/stereo_' + num_course + '_' + droite_ou_gauche + '_obj_points')
-img_points = np.loadtxt('matrices/points/points_image/stereo_' + num_course + '_' + droite_ou_gauche + '_img_points')
+obj_points = np.loadtxt('matrices/points/object_points/stereo_' + num_course + '_' + droite_ou_gauche + '_obj_points')
+img_points = np.loadtxt('matrices/points/image_points/stereo_' + num_course + '_' + droite_ou_gauche + '_img_points')
 video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 4 droite SD.mkv")
 img = video.read()[1]
 video.release()
 camera_matrix = np.loadtxt(
-    'matrices/camera_matrix/intrinsic/stereo_' + num_course + '_' + droite_ou_gauche + '_camera_matrix')
+    'matrices/camera_matrices/intrinsic/stereo_' + num_course + '_' + droite_ou_gauche + '_camera_matrix')
 dist_coeffs = np.loadtxt(
     'matrices/vectors/distortion/intrinsic/stereo_' + num_course + '_' + droite_ou_gauche + '_distortion_vector')
 

@@ -113,8 +113,8 @@ kc = []
 for i in range(12):
     kc.append((int(i / 4) * dx + 3, i % 4 * dy + dy, 0))
 known, kp = autocalibration_via_poi(img, kc, n_pois, 40)
-np.savetxt("matrices/points/points_objet/stereo_2_droite_obj_points", np.array(known))
-np.savetxt("matrices/points/points_image/stereo_2_droite_img_points", np.array(kp))
+np.savetxt("matrices/points/object_points/stereo_2_droite_obj_points", np.array(known))
+np.savetxt("matrices/points/image_points/stereo_2_droite_img_points", np.array(kp))
 # cv.namedWindow("img",cv.WINDOW_NORMAL)
 # cv.imshow("img",cv.WINDOW_NORMAL)
 # print(cv.waitKey(0))
