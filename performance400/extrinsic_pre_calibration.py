@@ -31,9 +31,10 @@ def calibrate(image):
 def calibrate(left_background, right_background, left_object_points, right_object_points):
     left_interest_points = [calibrate(left_background), left_object_points]
     right_interest_points = [calibrate(right_background), right_object_points]
-    # TODO reprise ici: enregistrer les poi
+    np.save("matrices/interest_points/left", left_interest_points)
+    np.save("matrices/interest_points/right", right_interest_points)
     return
 
 
 def get_interest_points():
-    return np.loadtxt("matrices/points/object_points/left"), np.loadtxt("matrices/points/object_points/right")
+    return np.loadtxt("matrices/object_points/left"), np.loadtxt("matrices/object_points/right")
