@@ -3,10 +3,9 @@ import numpy as np
 
 
 def calibrate(left_background, right_background, left_interest_points, right_interest_points,
-                             intrinsic_left_camera_matrix, intrinsic_right_camera_matrix,
-                             intrinsic_left_distortion_vector,
-                             intrinsic_right_distortion_vector):
-
+              intrinsic_left_camera_matrix, intrinsic_right_camera_matrix,
+              intrinsic_left_distortion_vector,
+              intrinsic_right_distortion_vector):
     left_obj_points = np.array(left_obj_points, 'float32')
     right_obj_points = np.array(right_obj_points, 'float32')
     left_img_points = np.array(left_img_points, 'float32')
@@ -73,7 +72,7 @@ def draw_axes(left_or_right, image):
         prefix = "left"
     else:
         prefix = "right"
-        
+
     image = cv2.drawFrameAxes(image, extrinsic_camera_matrix, extrinsic_distortion_vector, extrinsic_rotation_vector,
                               extrinsic_translation_vector, 1)
     cv2.namedWindow(prefix + "axes", image)
@@ -83,8 +82,7 @@ def draw_axes(left_or_right, image):
     pass
 
 
-def get_3d_coords(left_two_d_coords, right_two_d_cords):
-    
+def get_3d_coords(left_two_d_coords, right_two_d_coords):
     extrinsic_left_camera_matrix = get_extrinsic_parameters(0)[0]
     extrinsic_left_distortion_vector = get_extrinsic_parameters(0)[1]
     extrinsic_left_rotation_vector = get_extrinsic_parameters(0)[2]
@@ -101,14 +99,20 @@ def get_3d_coords(left_two_d_coords, right_two_d_cords):
     extrinsic_left_translation_vector = np.array([extrinsic_left_translation_vector])
     extrinsic_right_translation_vector = np.array([extrinsic_right_translation_vector])
 
-    m1 = np.append(left_rotation_matrix, extrinsic_left_translation_vector.T, axis=1)
+    # m1 = np.append(left_rotation_matrix, extrinsic_left_translation_vector.T, axis=1)
     m2 = np.append(right_rotation_matrix, extrinsic_right_translation_vector.T, axis=1)
 
     projection_matrix_1 = extrinsic_left_camera_matrix @ m1
     projection_matrix_2 = extrinsic_right_camera_matrix @ m2
 
+    # Test UndistortPoits
+    # left_two_d_coords = cv2.undistortPoints(left_two_d_coords, extrinsic_left_camera_matrix,
+    #                                         extrinsic_left_distortion_vector)
+    # right_two_d_coords = cv2.undistortPoints(right_two_d_coords, extrinsic_right_camera_matrix,
+    #                                          extrinsic_right_distortion_vector)
+
     points_4d = cv2.triangulatePoints(projection_matrix_1, projection_matrix_2, left_two_d_coords.T,
-                                      right_two_d_cords.T)
+                                      right_two_d_coords.T)
 
     points_3d = cv2.convertPointsFromHomogeneous(points_4d.T)
 
@@ -118,6 +122,3 @@ def get_3d_coords(left_two_d_coords, right_two_d_cords):
     points_3d_bis = np.asarray(points_3d_bis)
 
     return points_3d_bis
-
-
-
