@@ -167,17 +167,17 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     projection_matrix_1 = extrinsic_left_camera_matrix @ m1
     projection_matrix_2 = extrinsic_right_camera_matrix @ m2
 
+    # on enleve les 1e17 qui ont ete mis au endroits où on a eu des erreurs de pointage du coureur
+    ind_fail = get_positions_fails(left_two_d_coords, right_two_d_coords)
+    left_two_d_coords, right_two_d_coords = delete_positions_fails(left_two_d_coords, right_two_d_coords, ind_fail)
+
     # Test UndistortPoits
     # left_two_d_coords = cv2.undistortPoints(left_two_d_coords, extrinsic_left_camera_matrix,
     #                                         extrinsic_left_distortion_vector)
     # right_two_d_coords = cv2.undistortPoints(right_two_d_coords, extrinsic_right_camera_matrix,
     #                                          extrinsic_right_distortion_vector)
-    
-    # on enleve les 1e17 qui ont ete mis au endroits où on a eu des erreurs de pointage du coureur
-    ind_fail = get_positions_fails(left_two_d_coords, right_two_d_coords)
-    left_two_d_coords, right_two_d_coords = delete_positions_fails(left_two_d_coords, right_two_d_coords, ind_fail)
 
-    #  on fait la triangulation avec les points pour lesquels les 1e17 ont ees enleves
+    #  on fait la triangulation avec les points pour lesquels les 1e17 ont etes enleves
     points_4d = cv.triangulatePoints(projection_matrix_1, projection_matrix_2, left_two_d_coords.T,
                                      right_two_d_coords.T)
 
