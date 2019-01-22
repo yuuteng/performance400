@@ -43,7 +43,7 @@ cv.imshow("Trajectoire de droite", right_background)
 
 cv.waitKey(0)
 
-speed_profile = speed_utils.get_speed_profile(trajectory_utils, REFRESH_RATE)
+speed_profile = speed_utils.get_speed_raw_profile(trajectory_utils, REFRESH_RATE)
 pyplot.title("Profil de vitesse")
 pyplot.xlabel("Distance (m)")
 pyplot.ylabel("Vitesse (m/s)")
