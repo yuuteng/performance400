@@ -7,6 +7,7 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     left_image_points, left_object_points = calibrate(left_background, left_interest_points, 40)
     right_image_points, right_object_points = calibrate(right_background, right_interest_points, 40)
 
+    # on converti nos lites au bon format pour leur utilisation dans calibrateCamera de cv2
     left_object_points = np.array(left_object_points, 'float32')
     right_object_points = np.array(right_object_points, 'float32')
     left_image_points = np.array(left_image_points, 'float32')
@@ -17,6 +18,8 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     intrinsic_left_camera_matrix, intrinsic_right_camera_matrix, intrinsic_left_distortion_vector, \
     intrinsic_right_distortion_vector = intrinsic_parameters
 
+    # on se sert des parametres intrinsèques calculés au préalables pour affiner la determination des paramètres 
+    # extrinsèques 
     cali_flag = cv.CALIB_FIX_INTRINSIC | cv.CALIB_CB_NORMALIZE_IMAGE | cv.CALIB_USE_INTRINSIC_GUESS
 
     _, extrinsic_left_camera_matrix, extrinsic_left_distortion_vector, extrinsic_left_rotation_vectors, \
@@ -30,7 +33,8 @@ def calibrate(left_background, right_background, left_interest_points, right_int
                                                              intrinsic_right_camera_matrix,
                                                              intrinsic_right_distortion_vector,
                                                              flags=cali_flag)
-
+    # on extrain le vecteur qui nous interesse car calibrateCamera nous renvoie des vecteurs de vecteurs avec 1 seul 
+    # vecteur dedans 
     extrinsic_left_rotation_vector = extrinsic_left_rotation_vectors[0]
     extrinsic_left_translation_vector = extrinsic_left_translation_vectors[0]
     extrinsic_right_rotation_vector = extrinsic_right_rotation_vectors[0]
@@ -144,6 +148,7 @@ def draw_axes(image, right_camera):
 
 
 def get_3d_coords(left_two_d_coords, right_two_d_coords):
+    # left_two_d_coords et right_two_d_coords doivent être des vecteurs N*2 mais N peut être egal à 1
     extrinsic_left_camera_matrix, extrinsic_left_distortion_vector, extrinsic_left_rotation_vector, \
     extrinsic_left_translation_vector = get_extrinsic_parameters(False)
 
@@ -167,15 +172,48 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     #                                         extrinsic_left_distortion_vector)
     # right_two_d_coords = cv2.undistortPoints(right_two_d_coords, extrinsic_right_camera_matrix,
     #                                          extrinsic_right_distortion_vector)
+    
+    # on enleve les 1e17 qui ont ete mis au endroits où on a eu des erreurs de pointage du coureur
+    ind_fail = get_positions_fails(left_two_d_coords, right_two_d_coords)
+    left_two_d_coords, right_two_d_coords = delete_positions_fails(left_two_d_coords, right_two_d_coords, ind_fail)
 
+    #  on fait la triangulation avec les points pour lesquels les 1e17 ont ees enleves
     points_4d = cv.triangulatePoints(projection_matrix_1, projection_matrix_2, left_two_d_coords.T,
                                      right_two_d_coords.T)
 
     points_3d = cv.convertPointsFromHomogeneous(points_4d.T)
 
+    # on converti le format de point_3d vers un format N*3 plus facile à utiliser
     points_3d_bis = []
     for p in points_3d:
         points_3d_bis.append(p[0])
     points_3d_bis = np.asarray(points_3d_bis)
 
+    # on replace les 1e17 aux positions initiales pour ne pas perdre d'information sur les frames pour synchroniser
+    # les detections
+    for x in ind_fail:
+        points_3d_bis = np.append(np.append(points_3d_bis[:x], [[1e17, 1e17, 1e17]], axis=0),
+                                  points_3d_bis[x:], axis=0)
+
     return points_3d_bis
+
+
+def get_positions_fails(left_two_d_coords, right_two_d_coords):
+    # retourne les indices des positions où on a eu une erreur de pointage automatique du coureur
+    ind_fails = []
+    for n in range(np.shape(left_two_d_coords)[0]):
+        if abs(left_two_d_coords[n].any()) > 1e16 or abs(right_two_d_coords[n].any()) > 1e16:
+            ind_fails.append(n)
+
+    return ind_fails
+
+
+def delete_positions_fails(left_two_d_coords, right_two_d_coords, ind_fails):
+    # supprime les points où on a repéré une erreur
+    count = 0
+    for k in ind_fails:
+        left_two_d_coords = np.delete(left_two_d_coords, (k - count), axis=0)
+        right_two_d_coords = np.delete(right_two_d_coords, (k - count), axis=0)
+        count += 1
+
+    return left_two_d_coords, right_two_d_coords
