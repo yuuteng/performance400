@@ -68,8 +68,8 @@ video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/v
 img_droite = video.read()[1]
 video.release()
 
-camera_matrix_gauche = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_' + num_course + '_gauche_camera_matrix')
-camera_matrix_droite = np.loadtxt('matrices/camera_matrix/extrinsic/stereo_' + num_course + '_droite_camera_matrix')
+camera_matrix_gauche = np.loadtxt('matrices/camera_matrices/extrinsic/stereo_' + num_course + '_gauche_camera_matrix')
+camera_matrix_droite = np.loadtxt('matrices/camera_matrices/extrinsic/stereo_' + num_course + '_droite_camera_matrix')
 dist_coeffs_gauche = np.loadtxt(
     'matrices/vectors/distortion/extrinsic/stereo_' + num_course + '_gauche_distortion_vector')
 dist_coeffs_droite = np.loadtxt(
