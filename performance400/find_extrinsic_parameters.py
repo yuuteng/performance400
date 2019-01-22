@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 droite_ou_gauche = 'droite'
-num_course='2'
+num_course = '4'
 
 
 def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, show=True, save=False,
@@ -54,13 +54,15 @@ if droite_ou_gauche == 'gauche':
 elif droite_ou_gauche == 'droite':
     doug = 'droite548'
 
-obj_points = np.loadtxt('matrices/points/points_objet/stereo_'+num_course+'_' + droite_ou_gauche + '_obj_points')
-img_points = np.loadtxt('matrices/points/points_image/stereo_'+num_course+'_' + droite_ou_gauche + '_img_points')
-video = cv2.VideoCapture("videos/runway/course_'+num_course+'_droite_sd.mkv")
+obj_points = np.loadtxt('matrices/points/points_objet/stereo_' + num_course + '_' + droite_ou_gauche + '_obj_points')
+img_points = np.loadtxt('matrices/points/points_image/stereo_' + num_course + '_' + droite_ou_gauche + '_img_points')
+video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 4 droite SD.mkv")
 img = video.read()[1]
 video.release()
-camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/stereo_'+num_course+'_' + droite_ou_gauche + '_camera_matrix')
-dist_coeffs = np.loadtxt('matrices/vectors/distortion/intrinsic/stereo_'+num_course+'_' + droite_ou_gauche + '_distortion_vector')
+camera_matrix = np.loadtxt(
+    'matrices/camera_matrix/intrinsic/stereo_' + num_course + '_' + droite_ou_gauche + '_camera_matrix')
+dist_coeffs = np.loadtxt(
+    'matrices/vectors/distortion/intrinsic/stereo_' + num_course + '_' + droite_ou_gauche + '_distortion_vector')
 
 find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_coeffs, True, True,
-'stereo_'+num_course + droite_ou_gauche)
+                          'stereo_' + num_course + '_' + droite_ou_gauche)

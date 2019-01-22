@@ -1,9 +1,6 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plot
 import scipy.signal
-
-from performance400.find_3D_coords_mono import calculate_3d_coords
 
 left_calibration_points = np.array(
     [(735, 280), (219, 788), (797, 698), (1054, 906), (182, 1041)]) * 2
@@ -13,6 +10,7 @@ H = np.eye(3)
 count = 0
 nbr = 10
 num_course = '3'
+
 
 def get_bf_matches(m_H, m_left_image, m_right_image, m_kp1, m_kp2, m_des1, m_des2, nbr):
     m_matcher = cv2.BFMatcher(cv2.NORM_L1, crossCheck=False)
@@ -194,8 +192,8 @@ def trajectory_filtering(m_trajectory):
     # return m_trajectory
 
 
-videog = cv2.VideoCapture('videos/runway/course_'+num_course+'_gauche_sd.mkv')
-videod = cv2.VideoCapture('videos/runway/course_'+num_course+'_droite_sd.mkv')
+videog = cv2.VideoCapture('videos/runway/course_' + num_course + '_gauche_sd.mkv')
+videod = cv2.VideoCapture('videos/runway/course_' + num_course + '_droite_sd.mkv')
 FIRST_FRAME_INDEX = 0
 LAST_FRAME_INDEX = int(videod.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
 VIDEO_REFRESH_RATE = 30
@@ -303,8 +301,8 @@ while incr < nbr:
         trajectory_camera_coord_droite_bis = np.append(trajectory_camera_coord_droite_bis,
                                                        [trajectory_camera_coord_droite[incr + nbr * indice].tolist()],
                                                        axis=0)
-    np.savetxt('matrices/points/positions/stereo_'+num_course+'_homo_gauche_positions' + str(incr),
+    np.savetxt('matrices/points/positions/stereo_' + num_course + '_homo_gauche_positions' + str(incr),
                trajectory_camera_coord_gauche_bis)
-    np.savetxt('matrices/points/positions/stereo_'+num_course+'_homo_droite_positions' + str(incr),
+    np.savetxt('matrices/points/positions/stereo_' + num_course + '_homo_droite_positions' + str(incr),
                trajectory_camera_coord_droite_bis)
     incr += 1

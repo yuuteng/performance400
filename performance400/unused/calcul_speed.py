@@ -8,7 +8,7 @@ from performance400.find_3D_coords_stereo import find_3d_coords_stereo
 from performance400.find_3D_coords_stereo import get_wrong_points_3d_2
 
 VIDEO_REFRESH_RATE = 30
-nbr = 10
+nbr = 1
 num_course = '2'
 
 
@@ -61,10 +61,10 @@ def get_velocity(points_3d, show=True):
     return velocity, t
 
 
-video = cv2.VideoCapture('videos/runway/course_' + num_course + '_gauche_sd.mkv')
+video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 2 gauche SD.mkv")
 img_gauche = video.read()[1]
 video.release()
-video = cv2.VideoCapture('videos/runway/course_' + num_course + '_droite_sd.mkv')
+video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 2 droite SD.mkv")
 img_droite = video.read()[1]
 video.release()
 
@@ -85,8 +85,8 @@ rotation_matrix_droite = np.loadtxt('matrices/rotation_matrix/stereo_' + num_cou
 
 V = []
 for i in range(nbr):
-    positions_gauche = np.loadtxt('matrices/points/positions/stereo_' + num_course + '_homo_gauche_positions' + str(i))
-    positions_droite = np.loadtxt('matrices/points/positions/stereo_' + num_course + '_homo_droite_positions' + str(i))
+    positions_gauche = np.loadtxt('matrices/points/positions/stereo_' + num_course + '_gauche_positions')
+    positions_droite = np.loadtxt('matrices/points/positions/stereo_' + num_course + '_droite_positions')
 
     points_3d = find_3d_coords_stereo(img_gauche, img_droite,
                                       camera_matrix_gauche,
@@ -100,14 +100,16 @@ for i in range(nbr):
     v, t = get_velocity(points_3d, False)
     V.append(v)
     x2 = None
-for j in range(len(V)):
-    x1 = plt.subplot(int(len(V) / 2) + 1, 2, j + 1, sharex=x2)
-    x1.plot(t[2:len(t) - 1], V[j])
-    x2 = plt.subplot(int(len(V) / 2) + 1, 2, j + 1, sharex=x1)
-    x2.plot(t[2:len(t) - 1], V[j])
-    plt.xlabel("Numero de frame")
-    plt.ylabel("Vitesse km/h")
-    plt.title("Set de points " + str(j + 1))
+
+if nbr > 1:
+    for j in range(len(V)):
+        x1 = plt.subplot(int(len(V) / 2) + 1, 2, j + 1, sharex=x2)
+        x1.plot(t[2:len(t) - 1], V[j])
+        x2 = plt.subplot(int(len(V) / 2) + 1, 2, j + 1, sharex=x1)
+        x2.plot(t[2:len(t) - 1], V[j])
+        plt.xlabel("Numero de frame")
+        plt.ylabel("Vitesse km/h")
+        plt.title("Set de points " + str(j + 1))
 
 VF = []
 if nbr > 1:
@@ -123,4 +125,10 @@ if nbr > 1:
     plt.xlabel("Numero de frame")
     plt.ylabel("Vitesse m/s")
     plt.title("Vitesse moyenne des points")
+
+if nbr == 1:
+    plt.title("Set de points " + str(1))
+    plt.xlabel("Numero de frame")
+    plt.ylabel("Vitesse km/h")
+    plt.plot(t[2:len(t) - 1], V[0])
 plt.show()

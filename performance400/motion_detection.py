@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import scipy.signal
 
-from performance400.find_3D_coords_mono import calculate_3d_coords
+from performance400.unused.find_3D_coords_mono import calculate_3d_coords
 
 
 # Détermine les formes qui ont changé par rapport à background
@@ -109,8 +109,8 @@ MIN_CONTOUR_AREA = 2000
 GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
-droiteougauche='droite'
-video = cv2.VideoCapture('videos/runway/course_2_'+droiteougauche+'_sd.mkv')
+droiteougauche='gauche'
+video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 2 gauche SD.mkv")
 LAST_FRAME_INDEX = int(video.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
 # video = cv2.VideoCapture('videos/runway/droite.mp4')
 # pensez à faire le changement de matrice dans find_coord_3D si on change de video
@@ -268,5 +268,5 @@ print(trajectory_camera_coord)
 np.savetxt('matrices/points/positions/stereo_2_'+droiteougauche+'_positions', trajectory_camera_coord)
 # attention la courbe n'est pas filtrée
 
-plot.show()
+# plot.show()
 

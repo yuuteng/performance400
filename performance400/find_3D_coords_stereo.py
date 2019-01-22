@@ -78,10 +78,10 @@ def find_3d_coords_stereo(img_gauche, img_droite, camera_matrix_gauche, camera_m
     ind_fail = get_positions_fails(positions_gauche, positions_droite)
 
     positions_gauche, positions_droite = delete_positions_fails(positions_gauche, positions_droite, ind_fail)
-    # positions_gauche.T[0] = scipy.signal.savgol_filter(positions_gauche.T[0], 21, 5)
-    # positions_gauche.T[1] = scipy.signal.savgol_filter(positions_gauche.T[1], 21, 5)
-    # positions_droite.T[0] = scipy.signal.savgol_filter(positions_droite.T[0], 21, 5)
-    # positions_droite.T[1] = scipy.signal.savgol_filter(positions_droite.T[1], 21, 5)
+    positions_gauche.T[0] = scipy.signal.savgol_filter(positions_gauche.T[0], 21, 5)
+    positions_gauche.T[1] = scipy.signal.savgol_filter(positions_gauche.T[1], 21, 5)
+    positions_droite.T[0] = scipy.signal.savgol_filter(positions_droite.T[0], 21, 5)
+    positions_droite.T[1] = scipy.signal.savgol_filter(positions_droite.T[1], 21, 5)
 
     points_4d = cv2.triangulatePoints(projection_matrix_1, projection_matrix_2, positions_gauche.T,
                                       positions_droite.T)
@@ -160,10 +160,10 @@ def find_3d_coords_stereo(img_gauche, img_droite, camera_matrix_gauche, camera_m
     return points_3d_bis
 
 
-video = cv2.VideoCapture("videos/runway/course_2_gauche_sd.mkv")
+video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 2 gauche SD.mkv")
 img_gauche = video.read()[1]
 video.release()
-video = cv2.VideoCapture("videos/runway/course_2_droite_sd.mkv")
+video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 2 droite SD.mkv")
 img_droite = video.read()[1]
 video.release()
 

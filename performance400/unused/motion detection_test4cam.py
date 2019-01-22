@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plot
 import scipy.signal
 
-from performance400.find_3D_coords_mono import calculate_3d_coords
+from performance400.unused.find_3D_coords_mono import calculate_3d_coords
 
 
 # Détermine les formes qui ont changé par rapport à background
@@ -23,18 +23,6 @@ def get_frames(m_frame, m_background):
 
 
 # Renvoie le plus grand contours de la collection m_contours
-def get_largest_contour2(m_contours):
-    m_largest_contour = m_contours[0]
-    m_largest_contour2=m_contours[1]
-    for m_contour in m_contours:
-        if cv2.contourArea(m_contour) > cv2.contourArea(m_largest_contour):
-            m_largest_contour2= m_largest_contour
-            m_largest_contour = m_contour
-        elif(cv2.contourArea(m_contour) > cv2.contourArea(m_largest_contour2)):
-            m_largest_contour2=m_contour
-
-    return m_largest_contour,m_largest_contour2
-
 def get_largest_contour(m_contours):
     m_largest_contour = m_contours[0]
 
@@ -43,6 +31,7 @@ def get_largest_contour(m_contours):
             m_largest_contour = m_contour
 
     return m_largest_contour
+
 
 # Dessine la trajectoire du centre du plus grand contour sur m_frame
 def draw_trajectory(m_trajectory, m_frame, m_color=(0, 255, 0)):
@@ -112,16 +101,17 @@ def trajectory_filtering(m_trajectory):
     # return m_trajectory
 
 
-FIRST_FRAME_INDEX = 160
-LAST_FRAME_INDEX = 710
+FIRST_FRAME_INDEX = 0
+LAST_FRAME_INDEX = 210
 VIDEO_REFRESH_RATE = 30
 DETECTION_THRESHOLD = 10
 MIN_CONTOUR_AREA = 2000
 GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
-droiteougauche='droite'
-video = cv2.VideoCapture('videos/Course_2_pers/test2pers.MOV')
+numdecam="4"
+video = cv2.VideoCapture('videos/Test4Cam/4cam'+numdecam+'.mp4')
+
 # video = cv2.VideoCapture('videos/runway/droite.mp4')
 # pensez à faire le changement de matrice dans find_coord_3D si on change de video
 
@@ -131,11 +121,18 @@ frame_height = int(video.get(4))
 video_save = out = cv2.VideoWriter('videos/Results/motion_detection.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
                                    10, (frame_width, frame_height))
 
+
+
+
+frames=[]
+
+
+
 background = None
 
 corners_trajectories = [[], [], [], []]  # Top left hand corner then CCW
 trajectory_camera_coord = []
-memory=(150,0,0,0)
+
 for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     # On s'assure que la frame courante est bonne et nous intéresse
     frame = video.read()[1]
@@ -152,41 +149,17 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     contours = cv2.findContours(threshold_frame.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[1]
 
     if contours is not None:
-        if len(contours) > 1:
-
-            # for c in contours:
-            #     (x, y, w, h) = cv2.boundingRect(c)
-            #     cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 3)
-            (x, y, w, h) = cv2.boundingRect(get_largest_contour2(contours)[0])
-            (x2, y2, w2, h2) = cv2.boundingRect(get_largest_contour2(contours)[1])
-            if(abs(np.linalg.norm((x,y,w,h))-np.linalg.norm(memory))>abs(np.linalg.norm((x2,y2,w,h))-np.linalg.norm(memory))):
-                (x, y, w, h),(x2, y2, w2, h2)=(x2, y2, w2, h2),(x, y, w, h)
-                memory=(x,y,w,h)
-
-
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 3)
-            cv2.rectangle(frame, (x2, y2), (x2 + w2, y2 + h2), (255, 0, 255), 3)
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if len(contours) > 0:
             # On récupère la plus grande forme, et si elle est assez grande, on dessine son contour, on détermine son
             # centre et on calcule sa trajectoire
-
             largest_contour = get_largest_contour(contours)
 
             if cv2.contourArea(largest_contour) > MIN_CONTOUR_AREA:
                 (x, y, w, h) = cv2.boundingRect(largest_contour)
-                #cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+
+                frames.append([True,w*h,x])
+                # todo change x by x,y
 
                 (x1, y1, _) = calculate_3d_coords(x, y)
                 (x2, y2, _) = calculate_3d_coords(x, y + h)
@@ -200,28 +173,13 @@ for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
                 corners_trajectories[1].append((x2, y2))
                 corners_trajectories[2].append((x3, y3))
                 corners_trajectories[3].append((x4, y4))
-            else:
-                n = (1e17, 1e17)
-                # TODO change me
-                trajectory_camera_coord.append(n)
-                corners_trajectories[0].append(n)
-                corners_trajectories[1].append(n)
-                corners_trajectories[2].append(n)
-                corners_trajectories[3].append(n)
         else:
-            n = (1e17, 1e17)
-            # TODO change me
-            trajectory_camera_coord.append(n)
-            corners_trajectories[0].append(n)
-            corners_trajectories[1].append(n)
-            corners_trajectories[2].append(n)
-            corners_trajectories[3].append(n)
-
-
+            frames.append([False, None, None])
     else:
-        n = (1e17, 1e17)
-        # TODO change me
-        trajectory_camera_coord.append(n)
+
+        frames.append([False,None,None])
+
+        n = (None, None)
         corners_trajectories[0].append(n)
         corners_trajectories[1].append(n)
         corners_trajectories[2].append(n)
@@ -244,15 +202,14 @@ video_save.release()
 cv2.destroyAllWindows()
 
 # On lisse la trajectoire
-# corners_trajectories[0] = trajectory_filtering(corners_trajectories[0])
-# corners_trajectories[1] = trajectory_filtering(corners_trajectories[1])
-# corners_trajectories[2] = trajectory_filtering(corners_trajectories[2])
-# corners_trajectories[3] = trajectory_filtering(corners_trajectories[3])
+corners_trajectories[0] = trajectory_reconstructing(corners_trajectories[0])
+corners_trajectories[1] = trajectory_reconstructing(corners_trajectories[1])
+corners_trajectories[2] = trajectory_reconstructing(corners_trajectories[2])
+corners_trajectories[3] = trajectory_reconstructing(corners_trajectories[3])
 
 # TODO improve me
 trajectory = corners_trajectories[0]
 trajectory = trajectory_filtering(trajectory)
-
 
 size = len(trajectory)
 time = np.linspace(0, size / VIDEO_REFRESH_RATE, size)
@@ -301,9 +258,10 @@ plot.plot(np.transpose(corners_trajectories[3])[0])
 
 
 # on enregistre
-print(trajectory_camera_coord)
-np.savetxt('matrices/points/positions/stereo_1_'+droiteougauche, trajectory_camera_coord)
-# attention la courbe n'est pas filtrée
+np.savetxt('trajectoirecoorcamera.txt', trajectory_camera_coord)
+
+np.save('videos/Test4Cam/frames_cam_'+numdecam,frames)
+
+# attention la courbe n'est pas filtré
 
 plot.show()
-
