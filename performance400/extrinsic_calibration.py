@@ -4,8 +4,8 @@ import numpy as np
 
 def calibrate(left_background, right_background, left_interest_points, right_interest_points,
               intrinsic_parameters):
-    left_image_points, left_object_points = calibrate(left_background, left_interest_points, 40)
-    right_image_points, right_object_points = calibrate(right_background, right_interest_points, 40)
+    left_image_points, left_object_points = calibrate_single(left_background, left_interest_points, 40)
+    right_image_points, right_object_points = calibrate_single(right_background, right_interest_points, 40)
 
     # on converti nos lites au bon format pour leur utilisation dans calibrateCamera de cv2
     left_object_points = np.array(left_object_points, 'float32')
@@ -52,7 +52,7 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     np.save('matrices/translation_vector/extrinsic_right_translation_vector', extrinsic_right_translation_vector)
 
 
-def calibrate(image, interest_points, sensitivity):
+def calibrate_single(image, interest_points, sensitivity):
     image_points, object_points = interest_points
     orb = cv.ORB_create(nfeatures=10, scoreType=cv.ORB_HARRIS_SCORE)
     calibrated_interest_points = ([], object_points.copy())
