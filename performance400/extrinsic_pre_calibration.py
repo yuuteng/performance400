@@ -8,8 +8,6 @@ def draw_circle(event, x, y, flags, param):
         param[1].append((x, y))
         cv.circle(image, (x, y), 9, (255, 0, 255), 4)
 
-    return
-
 
 def calibrate(image):
     name = "Pre-calibration extrinsèque"
@@ -33,7 +31,6 @@ def calibrate(left_background, right_background, left_object_points, right_objec
     right_interest_points = [calibrate(right_background), right_object_points]
     np.save("matrices/interest_points/left", left_interest_points)
     np.save("matrices/interest_points/right", right_interest_points)
-    return
 
 
 def get_interest_points():
