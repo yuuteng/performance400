@@ -1,5 +1,6 @@
 import numpy as np
 import math as m
+import time
 import matplotlib.pyplot as pl
 import scipy.signal
 
@@ -41,5 +42,6 @@ norme_vitesse_XY_mean=norme_vitesse_XY[:param]+[np.mean(norme_vitesse_XY[i-param
 #pl.plot(indice_vitesse[param:len(norme_vitesse_XY)-param],norme_vitesse_XY_mean[param:len(norme_vitesse_XY)-param])
 pl.figure()
 pl.plot(indice_vitesse,norme_vitesse_XY_SavFil)
-pl.savefig('tesurveiubvibviribzscibdst.png')
+pl.savefig('Profil_'+str(time.gmtime().tm_hour)+'h_'+str(time.gmtime().tm_min)+'min_'+str(time.gmtime().tm_sec)+'sec_'+
+           str(time.gmtime().tm_mday)+'-'+str(time.gmtime().tm_mon)+'-'+str(time.gmtime().tm_year)+'.png')
 pl.show()
