@@ -86,10 +86,12 @@ def draw_axes(left_or_right, image):
 def get_3d_coords(left_two_d_coords, right_two_d_cords):
     
     extrinsic_left_camera_matrix = get_extrinsic_parameters(0)[0]
+    extrinsic_left_distortion_vector = get_extrinsic_parameters(0)[1]
     extrinsic_left_rotation_vector = get_extrinsic_parameters(0)[2]
     extrinsic_left_translation_vector = get_extrinsic_parameters(0)[3]
 
     extrinsic_right_camera_matrix = get_extrinsic_parameters(1)[0]
+    extrinsic_right_distortion_vector = get_extrinsic_parameters(1)[1]
     extrinsic_right_rotation_vector = get_extrinsic_parameters(1)[2]
     extrinsic_right_translation_vector = get_extrinsic_parameters(1)[3]
 
