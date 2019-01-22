@@ -112,8 +112,8 @@ def trajectory_filtering(m_trajectory):
     # return m_trajectory
 
 
-FIRST_FRAME_INDEX = 0
-LAST_FRAME_INDEX = 210
+FIRST_FRAME_INDEX = 160
+LAST_FRAME_INDEX = 710
 VIDEO_REFRESH_RATE = 30
 DETECTION_THRESHOLD = 10
 MIN_CONTOUR_AREA = 2000
@@ -121,7 +121,7 @@ GAUSSIAN_BLUR = 25
 NUMBER_OF_DILATATION = 2
 
 droiteougauche='droite'
-video = cv2.VideoCapture('videos/Course_2_pers/test2persSD.mkv')
+video = cv2.VideoCapture('videos/Course_2_pers/test2pers.MOV')
 # video = cv2.VideoCapture('videos/runway/droite.mp4')
 # pensez à faire le changement de matrice dans find_coord_3D si on change de video
 
@@ -135,7 +135,7 @@ background = None
 
 corners_trajectories = [[], [], [], []]  # Top left hand corner then CCW
 trajectory_camera_coord = []
-memory=(0,0,0,0)
+memory=(150,0,0,0)
 for i in range(-FIRST_FRAME_INDEX, LAST_FRAME_INDEX):
     # On s'assure que la frame courante est bonne et nous intéresse
     frame = video.read()[1]

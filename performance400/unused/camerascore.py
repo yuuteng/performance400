@@ -11,8 +11,8 @@ def score(ancienneframes, newframes, scores):
     a_scores=[0,0,0,0]
     coeff_persistance = 0
     coeff_diff = 1
-    coeff_taille = 0.00001
-    k = 0.00001
+    coeff_taille = 1
+    k = 1
     for ind in range(4):
         if  (newframes[ind][0]and ancienneframes[ind][0]):
             print(ancienneframes[ind][2])
