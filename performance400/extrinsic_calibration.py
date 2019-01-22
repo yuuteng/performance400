@@ -173,7 +173,7 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
 
     # Test UndistortPoits
     # left_two_d_coords = cv2.undistortPoints(left_two_d_coords, extrinsic_left_camera_matrix,
-    #                                         extrinsic_left_distortion_vector)
+    #                                        extrinsic_left_distortion_vector)
     # right_two_d_coords = cv2.undistortPoints(right_two_d_coords, extrinsic_right_camera_matrix,
     #                                          extrinsic_right_distortion_vector)
 
