@@ -3,27 +3,31 @@ import numpy as np
 
 
 def autocalibrate(left_targets, right_targets, width, height):
+
+    # critère d'arrêt pour la recherche de mire
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-    # left camera
+    # Traitement pour la camera de gauche
+    # creation artificelle des points objet de la mire
     object_point = np.zeros((width * height, 3), np.float32)
     object_point[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
 
-    # Arrays to store object points and image points from all the images.
+    # Listes pour stocker les points objet et image que l'on parviendra à détecter
     object_points = []  # 3d point in real world space
     image_points = []  # 2d points in image plane.
 
     count = 0
     for file_name in left_targets:
         img = cv2.imread(file_name)
-        img = cv2.threshold(img, 200, 255, cv2.THRESH_TRUNC)[1]
+        img = cv2.threshold(img, 200, 255, cv2.THRESH_TRUNC)[1] # si image floue on permet une detection mais moins
+        # precise
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         # Find the chess board corners
         ret, corners = cv2.findChessboardCorners(gray, (width, height), None)
         print(ret)
 
-        # If found, add object points, image points (after refining them)
+        # Si on trouve des points, on affine leur posistion et on les stock
         if ret:
             count += 1
             object_points.append(object_point)
@@ -37,11 +41,12 @@ def autocalibrate(left_targets, right_targets, width, height):
             cv2.imshow("mire cali gauche", img)
             cv2.waitKey(0)
 
+    # calcul des paramètres intrinsèques à partir des points trouvés
     (_, intrinsic_left_camera_matrix, intrinsic_left_distortion_vector, _, _) = cv2.calibrateCamera(object_points,
                                                                                                     image_points,
                                                                                                     gray.shape[::-1],
                                                                                                     None, None)
-    # right camera
+    # Même traitement pour la caméra de droite
     object_point = np.zeros((width * height, 3), np.float32)
     object_point[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
 
