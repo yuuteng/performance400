@@ -99,7 +99,7 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     extrinsic_left_translation_vector = np.array([extrinsic_left_translation_vector])
     extrinsic_right_translation_vector = np.array([extrinsic_right_translation_vector])
 
-    # m1 = np.append(left_rotation_matrix, extrinsic_left_translation_vector.T, axis=1)
+    m1 = np.append(left_rotation_matrix, extrinsic_left_translation_vector.T, axis=1)
     m2 = np.append(right_rotation_matrix, extrinsic_right_translation_vector.T, axis=1)
 
     projection_matrix_1 = extrinsic_left_camera_matrix @ m1
