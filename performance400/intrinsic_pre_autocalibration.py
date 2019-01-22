@@ -80,11 +80,11 @@ def autocalibrate(left_targets, right_targets, width, height):
                                                                                                       gray.shape[::-1],
                                                                                                       None, None)
 
-    np.savetxt('matrices/camera_matrix/intrinsic/intrinsic_left_camera_matrix', intrinsic_left_camera_matrix)
-    np.savetxt('matrices/distortion_vector/intrinsic/intrinsic_left_distortion_vector',
+    np.savetxt('matrices/camera_matrices/intrinsic/left', intrinsic_left_camera_matrix)
+    np.savetxt('matrices/distortion_vectors/intrinsic/left',
                intrinsic_left_distortion_vector)
-    np.savetxt('matrices/camera_matrix/intrinsic/intrinsic_right_camera_matrix', intrinsic_right_camera_matrix)
-    np.savetxt('matrices/distortion_vector/intrinsic/intrinsic_right_distortion_vector',
+    np.savetxt('matrices/camera_matrices/intrinsic/right', intrinsic_right_camera_matrix)
+    np.savetxt('matrices/distortion_vectors/intrinsic/right',
                intrinsic_right_distortion_vector)
 
 
@@ -108,12 +108,12 @@ def extract_targets(video, nbr):
 
 
 def get_intrinsic_parameters():
-    intrinsic_left_camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/intrinsic_left_camera_matrix')
+    intrinsic_left_camera_matrix = np.loadtxt('matrices/camera_matrices/intrinsic/left')
     intrinsic_left_distortion_vector = np.loadtxt(
-        'matrices/distortion_vector/intrinsic/intrinsic_left_distortion_vector')
-    intrinsic_right_camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/intrinsic_right_camera_matrix')
+        'matrices/distortion_vectors/intrinsic/left')
+    intrinsic_right_camera_matrix = np.loadtxt('matrices/camera_matrices/intrinsic/right')
     intrinsic_right_distortion_vector = np.loadtxt(
-        'matrices/distortion_vector/intrinsic/intrinsic_right_distortion_vector')
+        'matrices/distortion_vectors/intrinsic/right')
 
     return ((intrinsic_left_camera_matrix, intrinsic_left_distortion_vector),
             (intrinsic_right_camera_matrix, intrinsic_right_distortion_vector))

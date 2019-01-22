@@ -49,7 +49,7 @@ print(mtx)
 print(dist)
 
 np.savetxt('matrices/camera_matrices', mtx)
-np.savetxt('matrices/distortion_vector', dist)
+np.savetxt('matrices/distortion_vectors', dist)
 np.savetxt('matrices/obj_points_stereo_test1', object_points[0])
 
 # undistort
