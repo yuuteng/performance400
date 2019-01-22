@@ -1,11 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.signal
 import cv2
-from performance400.find_3D_coords_stereo import delete_wrong_points
-from performance400.find_3D_coords_stereo import points_filtering
-from performance400.find_3D_coords_stereo import find_3d_coords_stereo
-from performance400.find_3D_coords_stereo import get_wrong_points_3d_2
+from performance400.unused.find_3D_coords_stereo import delete_wrong_points
+from performance400.unused.find_3D_coords_stereo import find_3d_coords_stereo
+from performance400.unused.find_3D_coords_stereo import get_wrong_points_3d_2
 
 VIDEO_REFRESH_RATE = 30
 nbr = 1
@@ -61,10 +59,10 @@ def get_velocity(points_3d, show=True):
     return velocity, t
 
 
-video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 2 gauche SD.mkv")
+video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/left_run.mkv")
 img_gauche = video.read()[1]
 video.release()
-video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 2 droite SD.mkv")
+video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/right_run.mkv")
 img_droite = video.read()[1]
 video.release()
 

@@ -103,7 +103,7 @@ def mark_pois(image):
     return res
 
 
-video = cv.VideoCapture("videos/runway/Course 2 droite SD.mkv")
+video = cv.VideoCapture("videos/runway/right_run.mkv")
 img = video.read()[1]
 video.release()
 n_pois = mark_pois(img.copy())

@@ -5,7 +5,7 @@ from matplotlib import pyplot
 from performance400 import intrinsic_pre_autocalibration, extrinsic_pre_calibration, extrinsic_calibration, \
     trajectory_utils, speed_utils
 
-PRE_PROCESS = False
+PRE_PROCESS = True
 REFRESH_RATE = 30
 
 left_video = cv.VideoCapture("videos/runway/left_run.mkv")
@@ -16,7 +16,7 @@ right_check, right_background = right_video.read()
 if PRE_PROCESS:
     left_targets = glob.glob("images/targets/left/*.jpg")
     right_targets = glob.glob("images/targets/right/*.jpg")
-    intrinsic_pre_autocalibration.autocalibrate(left_targets, right_targets)
+    intrinsic_pre_autocalibration.autocalibrate(left_targets, right_targets, 10, 7)
 
     left_object_points = np.load("matrices/points/object_points/left")
     right_object_points = np.load("matrices/points/object_points/right")
@@ -28,11 +28,12 @@ left_interest_points, right_interest_points = extrinsic_pre_calibration.get_inte
 intrinsic_parameters = intrinsic_pre_autocalibration.get_intrinsic_parameters()
 extrinsic_calibration.calibrate(left_background, right_background, left_interest_points, right_interest_points,
                                 intrinsic_parameters)
-extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters()
+left_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(False)
+right_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(True)
 
-trajectory = trajectory_utils.get_trajectory(left_video, right_video, extrinsic_parameters)
-trajectory_utils.draw_trajectory(left_background, trajectory_utils, False, extrinsic_parameters)
-trajectory_utils.draw_trajectory(right_background, trajectory_utils, True, extrinsic_parameters)
+trajectory = trajectory_utils.get_trajectory(left_video, right_video)
+trajectory_utils.draw_trajectory(left_background, trajectory_utils, False, left_extrinsic_parameters)
+trajectory_utils.draw_trajectory(right_background, trajectory_utils, True, right_extrinsic_parameters)
 extrinsic_calibration.draw_axes(left_background, False)
 extrinsic_calibration.draw_axes(right_background, True)
 

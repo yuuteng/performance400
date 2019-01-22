@@ -3,7 +3,6 @@ import numpy as np
 
 
 def autocalibrate(left_targets, right_targets, width, height):
-
     # critère d'arrêt pour la recherche de mire
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -17,9 +16,10 @@ def autocalibrate(left_targets, right_targets, width, height):
     image_points = []  # 2d points in image plane.
 
     count = 0
+    gray = None
     for file_name in left_targets:
         img = cv2.imread(file_name)
-        img = cv2.threshold(img, 200, 255, cv2.THRESH_TRUNC)[1] # si image floue on permet une detection mais moins
+        img = cv2.threshold(img, 200, 255, cv2.THRESH_TRUNC)[1]  # si image floue on permet une detection mais moins
         # precise
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -95,7 +95,7 @@ def extract_targets(video, nbr):
     if video.isOpened() and video_length > 0:
         frame_ids = [0]
         if video_length >= 4:
-            np.arrange(0, video_length, round(video_length / nbr))
+            np.arange(0, video_length, round(video_length / nbr))
         count = 0
         success, image = video.read()
         while success:
@@ -107,15 +107,13 @@ def extract_targets(video, nbr):
     return images
 
 
-def get_intrinsic_parameters(left_or_right):
-    if left_or_right == 0:
-        intrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/intrinsic_left_camera_matrix')
-        intrinsic_distortion_vector = np.loadtxt(
-            'matrices/distortion_vector/intrinsic/intrinsic_left_distortion_vector')
-    else:
-        intrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/intrinsic_right_camera_matrix')
-        intrinsic_distortion_vector = np.loadtxt(
-            'matrices/distortion_vector/intrinsic/intrinsic_right_distortion_vector')
+def get_intrinsic_parameters():
+    intrinsic_left_camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/intrinsic_left_camera_matrix')
+    intrinsic_left_distortion_vector = np.loadtxt(
+        'matrices/distortion_vector/intrinsic/intrinsic_left_distortion_vector')
+    intrinsic_right_camera_matrix = np.loadtxt('matrices/camera_matrix/intrinsic/intrinsic_right_camera_matrix')
+    intrinsic_right_distortion_vector = np.loadtxt(
+        'matrices/distortion_vector/intrinsic/intrinsic_right_distortion_vector')
 
-    return intrinsic_camera_matrix, intrinsic_distortion_vector
-
+    return ((intrinsic_left_camera_matrix, intrinsic_left_distortion_vector),
+            (intrinsic_right_camera_matrix, intrinsic_right_distortion_vector))
