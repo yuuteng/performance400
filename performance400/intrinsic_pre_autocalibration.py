@@ -73,6 +73,7 @@ def autocalibrate(left_targets, right_targets, width, height):
             cv2.namedWindow("mire cali droite", cv2.WINDOW_NORMAL)
             cv2.imshow("mire cali droite", img)
             cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
     (_, intrinsic_right_camera_matrix, intrinsic_right_distortion_vector, _, _) = cv2.calibrateCamera(object_points,
                                                                                                       image_points,
@@ -85,7 +86,6 @@ def autocalibrate(left_targets, right_targets, width, height):
     np.savetxt('matrices/camera_matrix/intrinsic/intrinsic_right_camera_matrix', intrinsic_right_camera_matrix)
     np.savetxt('matrices/distortion_vector/intrinsic/intrinsic_right_distortion_vector',
                intrinsic_right_distortion_vector)
-    pass
 
 
 def extract_targets(video, nbr):
