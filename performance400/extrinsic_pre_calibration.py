@@ -10,7 +10,7 @@ def draw_circle(event, x, y, flags, param):
 
 
 def calibrate_single(image):
-    name = "Pre-calibration extrinsèque"
+    name = "Pre-calibration extrinseque"
     cv.namedWindow(name, cv.WINDOW_NORMAL)
     image_points = []
     cv.setMouseCallback(name, draw_circle, param=[image, image_points])
