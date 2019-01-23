@@ -4,8 +4,8 @@ import numpy as np
 
 def calibrate(left_background, right_background, left_interest_points, right_interest_points,
               intrinsic_parameters):
-    left_image_points, left_object_points = calibrate_single(left_background, left_interest_points, 400)
-    right_image_points, right_object_points = calibrate_single(right_background, right_interest_points, 400)
+    left_image_points, left_object_points = calibrate_single(left_background, left_interest_points, 40)
+    right_image_points, right_object_points = calibrate_single(right_background, right_interest_points, 40)
 
     # on converti nos lites au bon format pour leur utilisation dans calibrateCamera de cv2
     left_object_points = np.array(left_object_points, 'float32')
@@ -21,6 +21,11 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     # on se sert des parametres intrinsèques calculés au préalables pour affiner la determination des paramètres 
     # extrinsèques 
     cali_flag = cv.CALIB_FIX_INTRINSIC | cv.CALIB_CB_NORMALIZE_IMAGE | cv.CALIB_USE_INTRINSIC_GUESS
+
+    # print(left_object_points)
+    # print(left_object_points.shape)
+    # print(left_image_points)
+    # print(left_image_points.shape)
 
     _, extrinsic_left_camera_matrix, extrinsic_left_distortion_vector, extrinsic_left_rotation_vectors, \
     extrinsic_left_translation_vectors = cv.calibrateCamera([left_object_points], [left_image_points], left_size,
@@ -55,13 +60,13 @@ def calibrate(left_background, right_background, left_interest_points, right_int
 def calibrate_single(image, interest_points, sensitivity):
     image_points, object_points = interest_points
     orb = cv.ORB_create(nfeatures=10, scoreType=cv.ORB_HARRIS_SCORE)
-    calibrated_interest_points = ([], object_points.copy())
+    calibrated_interest_points = [[], object_points.copy()]
     removed = 0
     for j in range(len(image_points)):
         x, y = image_points[j]
         x = int(x)
         y = int(y)
-        sub_image = image[y - sensitivity: y + sensitivity, x - sensitivity: x + sensitivity]
+        sub_image = image.copy()[y - sensitivity: y + sensitivity, x - sensitivity: x + sensitivity]
         gray = cv.cvtColor(sub_image, cv.COLOR_BGR2GRAY)
 
         keypoints = orb.detect(gray, None)
@@ -85,7 +90,7 @@ def calibrate_single(image, interest_points, sensitivity):
                          int(y - sensitivity + keypoints[current].pt[1])))
                     break
                 elif key == ord('s'):
-                    calibrated_interest_points[1].pop(j - removed)
+                    calibrated_interest_points[1] = np.delete(calibrated_interest_points[1], j - removed, axis=0)
                     removed += 1
                     break
                 elif key == 81:  # left
@@ -98,7 +103,7 @@ def calibrate_single(image, interest_points, sensitivity):
             if test:
                 break
         else:
-            np.delete(calibrated_interest_points[1], j - removed, axis=0)
+            calibrated_interest_points[1] = np.delete(calibrated_interest_points[1], j - removed, axis=0)
             removed += 1
             cv.imshow(name, sub_image)
             if cv.waitKey(0) == ord('q'):
