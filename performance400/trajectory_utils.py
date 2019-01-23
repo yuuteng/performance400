@@ -28,6 +28,7 @@ def get_trajectory(left_video, right_video, left_lower_bound=(0, 0), left_upper_
     return extrinsic_calibration.get_3d_coords(left_camera_trajectory, right_camera_trajectory)
 
 
+
 def get_camera_trajectory(video, lower_bound, upper_bound):
     """
     Get the trajectory of the runner in the camera coords
