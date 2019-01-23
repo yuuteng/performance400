@@ -4,6 +4,17 @@ import numpy as np
 
 def calibrate(left_background, right_background, left_interest_points, right_interest_points,
               intrinsic_parameters):
+    """
+
+    Save in Txt all extrinsic parameters in appropriate files after calculating them
+
+    :param left_background: generally 1st frame from left_video
+    :param right_background: same
+    :param left_interest_points: object points associated with approximated image points which will be rectified farther
+    :param right_interest_points: same
+    :param intrinsic_parameters: estimated intrinsic parameters from intrinsic_autocalibrate
+    :return:
+    """
     left_image_points, left_object_points = calibrate_single(left_background, left_interest_points, 40)
     right_image_points, right_object_points = calibrate_single(right_background, right_interest_points, 40)
 
@@ -20,7 +31,7 @@ def calibrate(left_background, right_background, left_interest_points, right_int
 
     # on se sert des parametres intrinsèques calculés au préalables pour affiner la determination des paramètres 
     # extrinsèques 
-    cali_flag = cv.CALIB_FIX_INTRINSIC | cv.CALIB_CB_NORMALIZE_IMAGE | cv.CALIB_USE_INTRINSIC_GUESS
+    cali_flag = cv.CALIB_FIX_INTRINSIC | cv.CALIB_CB_NORMALIZE_IMAGE
 
     # print(left_object_points)
     # print(left_object_points.shape)
@@ -93,10 +104,10 @@ def calibrate_single(image, interest_points, sensitivity):
                     calibrated_interest_points[1] = np.delete(calibrated_interest_points[1], j - removed, axis=0)
                     removed += 1
                     break
-                elif key == 81:  # left
+                elif key == 81 or key == ord('a'):  # left
                     current -= 1
                     current %= len(keypoints)
-                elif key == 83:  # right
+                elif key == 83 or key == ord('e'):  # right
                     current += 1
                     current %= len(keypoints)
 
@@ -124,6 +135,13 @@ def draw_keypoints(image, keypoints, current):
 
 
 def get_extrinsic_parameters(right_camera):
+    """
+
+    Load extrinsic parameters from txt files
+
+    :param right_camera: True if we want right camera extrinsic parameters, else False
+    :return: list of 4 extrinsic parameters according to left or right camera choice
+    """
     if right_camera:
         extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrices/extrinsic/right')
         extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/right')
@@ -139,6 +157,14 @@ def get_extrinsic_parameters(right_camera):
 
 
 def draw_axes(image, right_camera):
+    """
+
+    Draw axes on the chosen camera background
+
+    :param image:
+    :param right_camera:
+    :return: nothing
+    """
     extrinsic_camera_matrix, extrinsic_distortion_vector, extrinsic_rotation_vector, extrinsic_translation_vector \
         = get_extrinsic_parameters(right_camera)
 
@@ -147,6 +173,14 @@ def draw_axes(image, right_camera):
 
 
 def get_3d_coords(left_two_d_coords, right_two_d_coords):
+    """
+    Create a N - lines * 3 - columns  vector of points on the real world coordinates from two N - lines * 2 - columns
+    vectors from points on the image coordinates
+
+    :param left_two_d_coords:
+    :param right_two_d_coords:
+    :return:
+    """
     # left_two_d_coords et right_two_d_coords doivent être des vecteurs N-lignes*2-colonnes mais N peut être egal à 1
     extrinsic_left_camera_matrix, extrinsic_left_distortion_vector, extrinsic_left_rotation_vector, \
     extrinsic_left_translation_vector = get_extrinsic_parameters(False)
@@ -197,6 +231,13 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
 
 
 def get_positions_fails(left_two_d_coords, right_two_d_coords):
+    """
+    Return list of indices where position detection failed and points were replaced by 1e17
+
+    :param left_two_d_coords:
+    :param right_two_d_coords:
+    :return:
+    """
     # retourne les indices des positions où on a eu une erreur de pointage automatique du coureur
     ind_fails = []
     for n in range(np.shape(left_two_d_coords)[0]):
@@ -207,6 +248,15 @@ def get_positions_fails(left_two_d_coords, right_two_d_coords):
 
 
 def delete_positions_fails(left_two_d_coords, right_two_d_coords, ind_fails):
+    """
+
+    Delete points were  position detection failed and points were replaced by 1e17
+
+    :param left_two_d_coords:
+    :param right_two_d_coords:
+    :param ind_fails:
+    :return:
+    """
     # supprime les points où on a repéré une erreur
     count = 0
     for k in ind_fails:

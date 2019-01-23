@@ -3,6 +3,11 @@ import numpy as np
 
 
 def draw_circle(event, x, y, flags, param):
+    """
+
+    Draw a circle at every left mouse click  and append the coordinate in param[1]
+
+    """
     if event == cv.EVENT_LBUTTONUP:
         image = param[0]
         param[1].append((x, y))
@@ -10,6 +15,12 @@ def draw_circle(event, x, y, flags, param):
 
 
 def calibrate_single(image):
+    """
+    Manually point Points on an image
+
+    :param image: the image to be calibrate
+    :return: array with all the points
+    """
     name = "Pre-calibration extrinseque"
     cv.namedWindow(name, cv.WINDOW_NORMAL)
     image_points = []
@@ -26,12 +37,25 @@ def calibrate_single(image):
     return np.array(image_points)
 
 
-def calibrate(left_background, right_background, left_object_points, right_object_points):
+def calibrate(left_background, right_background):
+    """
+
+    Call calibrate single on the right and left background and save the results
+
+    :param left_background:
+    :param right_background:
+    """
     np.savetxt("matrices/interest_points/image_points/left", calibrate_single(left_background.copy()))
     np.savetxt("matrices/interest_points/image_points/right", calibrate_single(right_background.copy()))
 
 
 def get_interest_points():
+    """
+    Load interest points saved by extrinsic_pre_calibration.calibrate
+
+    :return: The list of interest points
+
+    """
     left_interest_points = (
         np.loadtxt("matrices/interest_points/image_points/left"), np.loadtxt("matrices/interest_points/object_points/left"))
     right_interest_points = (
