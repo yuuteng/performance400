@@ -5,8 +5,10 @@ from matplotlib import pyplot
 from performance400 import intrinsic_pre_autocalibration, extrinsic_pre_calibration, extrinsic_calibration, \
     trajectory_utils, speed_utils
 
+EXTRACT_MIRE = False
 INTRINSIC_CALIBRATION = False
 PRE_EXTRINSIC_CALIBRATION = False
+MAIN_RESOLUTION = True
 
 
 REFRESH_RATE = 30
@@ -27,35 +29,35 @@ if PRE_EXTRINSIC_CALIBRATION:
     extrinsic_pre_calibration.calibrate(left_background, right_background,
                                         left_object_points,
                                         right_object_points)
-
-left_interest_points, right_interest_points = extrinsic_pre_calibration.get_interest_points()
-intrinsic_parameters = intrinsic_pre_autocalibration.get_intrinsic_parameters()
-extrinsic_calibration.calibrate(left_background, right_background, left_interest_points, right_interest_points,
+if MAIN_RESOLUTION:
+    left_interest_points, right_interest_points = extrinsic_pre_calibration.get_interest_points()
+    intrinsic_parameters = intrinsic_pre_autocalibration.get_intrinsic_parameters()
+    extrinsic_calibration.calibrate(left_background, right_background, left_interest_points, right_interest_points,
                                 intrinsic_parameters)
-left_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(False)
-right_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(True)
+    left_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(False)
+    right_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(True)
 
-trajectory = trajectory_utils.get_trajectory(left_video, right_video)
-trajectory_utils.draw_trajectory(left_background, trajectory, left_extrinsic_parameters)
-trajectory_utils.draw_trajectory(right_background, trajectory, right_extrinsic_parameters)
-extrinsic_calibration.draw_axes(left_background, False)
-extrinsic_calibration.draw_axes(right_background, True)
+    trajectory = trajectory_utils.get_trajectory(left_video, right_video)
+    trajectory_utils.draw_trajectory(left_background, trajectory, left_extrinsic_parameters)
+    trajectory_utils.draw_trajectory(right_background, trajectory, right_extrinsic_parameters)
+    extrinsic_calibration.draw_axes(left_background, False)
+    extrinsic_calibration.draw_axes(right_background, True)
 
 
-cv.namedWindow("Trajectoire de gauche", cv.WINDOW_NORMAL)
-cv.namedWindow("Trajectoire de droite", cv.WINDOW_NORMAL)
-cv.imshow("Trajectoire de gauche", left_background)
-cv.imshow("Trajectoire de droite", right_background)
+    cv.namedWindow("Trajectoire de gauche", cv.WINDOW_NORMAL)
+    cv.namedWindow("Trajectoire de droite", cv.WINDOW_NORMAL)
+    cv.imshow("Trajectoire de gauche", left_background)
+    cv.imshow("Trajectoire de droite", right_background)
 
-cv.waitKey(0)
-cv.destroyAllWindows()
-left_video.release()
-right_video.release()
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    left_video.release()
+    right_video.release()
 
-speed_profile,index_speed = speed_utils.get_speed_raw_profile(trajectory, REFRESH_RATE)
-speed_utils.export_speed_profiles(trajectory,REFRESH_RATE)
-pyplot.title("Profil de vitesse")
-pyplot.xlabel("Distance (m)")
-pyplot.ylabel("Vitesse (m/s)")
-pyplot.plot(index_speed,speed_profile)
-pyplot.show()
+    speed_profile,index_speed = speed_utils.get_speed_raw_profile(trajectory, REFRESH_RATE)
+    speed_utils.export_speed_profiles(trajectory,REFRESH_RATE)
+    pyplot.title("Profil de vitesse")
+    pyplot.xlabel("Distance (m)")
+    pyplot.ylabel("Vitesse (m/s)")
+    pyplot.plot(index_speed,speed_profile)
+    pyplot.show()

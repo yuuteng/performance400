@@ -88,7 +88,8 @@ def autocalibrate(left_targets, right_targets, width, height):
                intrinsic_right_distortion_vector)
 
 
-def extract_targets(video, nbr):
+def extract_targets(video, nbr, right_camera):
+    prefix = 'right' if right_camera else 'left'
     video_length = int(video.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
     images = []
 
@@ -101,10 +102,9 @@ def extract_targets(video, nbr):
         while success:
             if count in frame_ids:
                 print('ok', count)
-                images.append(image)
+                cv2.imwrite('images/targets/'+prefix+'/'+str(count))
             success, image = video.read()
             count += 1
-    return images
 
 
 def get_intrinsic_parameters():
