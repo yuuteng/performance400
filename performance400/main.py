@@ -13,7 +13,7 @@ REFRESH_RATE = 59.94
 
 if EXTRACT_MIRE:
     left_mire = cv.VideoCapture("videos/mires/left_mire.MP4")
-    right_mire = cv.VideoCapture("videos/mires/right_mire.mkv")
+    right_mire = cv.VideoCapture("videos/mires/right_mire.MP4")
     intrinsic_pre_autocalibration.extract_targets(left_mire, 50, False)
     intrinsic_pre_autocalibration.extract_targets(right_mire, 50, True)
 
@@ -45,6 +45,10 @@ if (not EXTRACT_MIRE) and (not INTRINSIC_CALIBRATION):
     trajectory = trajectory_utils.get_trajectory(left_video, right_video)
     trajectory_utils.draw_trajectory(left_background, trajectory, left_extrinsic_parameters)
     trajectory_utils.draw_trajectory(right_background, trajectory, right_extrinsic_parameters)
+    lop = np.loadtxt("matrices/interest_points/object_points/left")
+    rop = np.loadtxt("matrices/interest_points/object_points/right")
+    trajectory_utils.draw_trajectory(left_background, lop, left_extrinsic_parameters)
+    trajectory_utils.draw_trajectory(right_background, rop, right_extrinsic_parameters)
     extrinsic_calibration.draw_axes(left_background, False)
     extrinsic_calibration.draw_axes(right_background, True)
 
