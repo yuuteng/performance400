@@ -115,5 +115,5 @@ def get_intrinsic_parameters():
     intrinsic_right_distortion_vector = np.loadtxt(
         'matrices/distortion_vectors/intrinsic/right')
 
-    return ((intrinsic_left_camera_matrix, intrinsic_left_distortion_vector),
-            (intrinsic_right_camera_matrix, intrinsic_right_distortion_vector))
+    return (intrinsic_left_camera_matrix, intrinsic_left_distortion_vector,
+            intrinsic_right_camera_matrix, intrinsic_right_distortion_vector)
