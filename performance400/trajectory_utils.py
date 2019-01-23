@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import scipy.signal
 import math
+from matplotlib import pyplot
 from performance400 import extrinsic_calibration
 
 DETECTION_THRESHOLD = 10
@@ -116,6 +117,14 @@ def draw_trajectory(background, trajectory, extrinsic_parameters):
     :param trajectory:
     :param extrinsic_parameters:
     """
+
+    removed = 0
+    for i in range(len(trajectory)):
+        vec = trajectory[i - removed]
+        if vec[0] > 1e+16:
+            trajectory = np.delete(trajectory, i - removed, axis=0)
+            removed += 1
+
     extrinsic_camera_matrix, extrinsic_distortion_vector, extrinsic_rotation_vector, \
     extrinsic_translation_vector = extrinsic_parameters
     trajectory = np.array(trajectory, 'float32')
@@ -182,4 +191,3 @@ def trajectory_filtering(trajectory):
     filtered_trajectory = [(filtered_x[k], filtered_y[k]) for k in range(0, len(filtered_x))]
 
     return filtered_trajectory
-

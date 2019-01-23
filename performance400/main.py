@@ -45,12 +45,13 @@ if (not EXTRACT_MIRE) and (not INTRINSIC_CALIBRATION):
     trajectory = trajectory_utils.get_trajectory(left_video, right_video, left_lower_bound=(0, 450),
                                                  left_upper_bound=(1680, 1080), right_lower_bound=(153, 355),
                                                  right_upper_bound=(1920, 1080))
-    trajectory_utils.draw_trajectory(left_background, trajectory, left_extrinsic_parameters)
-    trajectory_utils.draw_trajectory(right_background, trajectory, right_extrinsic_parameters)
-    lop = np.loadtxt("matrices/interest_points/object_points/left")
-    rop = np.loadtxt("matrices/interest_points/object_points/right")
-    trajectory_utils.draw_trajectory(left_background, lop, left_extrinsic_parameters)
-    trajectory_utils.draw_trajectory(right_background, rop, right_extrinsic_parameters)
+
+    trajectory_utils.draw_trajectory(left_background, trajectory.copy(), left_extrinsic_parameters)
+    trajectory_utils.draw_trajectory(right_background, trajectory.copy(), right_extrinsic_parameters)
+    # lop = np.loadtxt("matrices/interest_points/object_points/left")
+    # rop = np.loadtxt("matrices/interest_points/object_points/right")
+    # trajectory_utils.draw_trajectory(left_background, lop, left_extrinsic_parameters)
+    # trajectory_utils.draw_trajectory(right_background, rop, right_extrinsic_parameters)
     extrinsic_calibration.draw_axes(left_background, False)
     extrinsic_calibration.draw_axes(right_background, True)
 
@@ -71,4 +72,3 @@ if (not EXTRACT_MIRE) and (not INTRINSIC_CALIBRATION):
     pyplot.ylabel("Vitesse (m/s)")
     pyplot.plot(index_speed, speed_profile)
     pyplot.show()
-
