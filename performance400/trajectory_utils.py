@@ -98,6 +98,12 @@ def get_camera_trajectory(video, lower_bound, upper_bound):
 
 
 def remove_out_of_bounds_contours(contours, lower_bound, upper_bound):
+    """
+    Used to rempve every contour outside of the box lower_bound -> upper_bound
+    :param contours:
+    :param lower_bound:
+    :param upper_bound:
+    """
     x0, y0 = lower_bound
     w0 = upper_bound[0] - x0
     h0 = upper_bound[1] - y0
