@@ -42,7 +42,9 @@ if (not EXTRACT_MIRE) and (not INTRINSIC_CALIBRATION):
     left_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(False)
     right_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(True)
 
-    trajectory = trajectory_utils.get_trajectory(left_video, right_video)
+    trajectory = trajectory_utils.get_trajectory(left_video, right_video, left_lower_bound=(0, 450),
+                                                 left_upper_bound=(1680, 1080), right_lower_bound=(153, 355),
+                                                 right_upper_bound=(1920, 1080))
     trajectory_utils.draw_trajectory(left_background, trajectory, left_extrinsic_parameters)
     trajectory_utils.draw_trajectory(right_background, trajectory, right_extrinsic_parameters)
     extrinsic_calibration.draw_axes(left_background, False)
