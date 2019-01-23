@@ -10,8 +10,8 @@ def find_extrinsic_parameters(img, obj_points, img_points, camera_matrix, dist_c
     if save:
         if prefix == '':
             return print('Veuillez saisir un prefix')
-        np.savetxt('matrices/points/image_points/' + prefix + '_img_points', img_points)
-        np.savetxt('matrices/points/object_points/' + prefix + '_obj_points', obj_points)
+        np.savetxt('matrices/points/calibration_image_points/' + prefix + '_img_points', img_points)
+        np.savetxt('matrices/points/calibration_object_points/' + prefix + '_obj_points', obj_points)
 
     obj_points = np.array(obj_points, 'float32')
     img_points = np.array(img_points, 'float32')
@@ -54,8 +54,8 @@ if droite_ou_gauche == 'gauche':
 elif droite_ou_gauche == 'droite':
     doug = 'droite548'
 
-obj_points = np.loadtxt('matrices/points/object_points/stereo_' + num_course + '_' + droite_ou_gauche + '_obj_points')
-img_points = np.loadtxt('matrices/points/image_points/stereo_' + num_course + '_' + droite_ou_gauche + '_img_points')
+obj_points = np.loadtxt('matrices/points/calibration_object_points/stereo_' + num_course + '_' + droite_ou_gauche + '_obj_points')
+img_points = np.loadtxt('matrices/points/calibration_image_points/stereo_' + num_course + '_' + droite_ou_gauche + '_img_points')
 video = cv2.VideoCapture("/home/colozz/workspace/performance400/performance400/videos/runway/Course 4 droite SD.mkv")
 img = video.read()[1]
 video.release()

@@ -21,8 +21,8 @@ if INTRINSIC_CALIBRATION:
     intrinsic_pre_autocalibration.autocalibrate(left_targets, right_targets, 10, 7)
 
 if PRE_EXTRINSIC_CALIBRATION:
-    left_object_points = np.loadtxt("matrices/points/object_points/left")
-    right_object_points = np.loadtxt("matrices/points/object_points/right")
+    left_object_points = np.loadtxt("matrices/interest_points/object_points/left")
+    right_object_points = np.loadtxt("matrices/interest_points/object_points/right")
     extrinsic_pre_calibration.calibrate(left_background, right_background,
                                         left_object_points,
                                         right_object_points)

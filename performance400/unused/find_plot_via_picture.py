@@ -15,7 +15,7 @@ for pt in zip(*loc[::-1]):
     cv2.rectangle(img, pt, (pt[0] + width, pt[1] + height), (0, 255, 0), 1)
 
 # save object
-np.savetxt('matrices/points/object_points/find_objet', loc)
+np.savetxt('matrices/points/calibration_object_points/find_objet', loc)
 
 cv2.namedWindow("img", cv2.WINDOW_NORMAL)
 cv2.imshow("img", img)
