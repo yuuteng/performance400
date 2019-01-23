@@ -27,8 +27,8 @@ def calibrate_single(image):
 
 
 def calibrate(left_background, right_background, left_object_points, right_object_points):
-    np.savetxt("matrices/interest_points/image_points/left", calibrate_single(left_background))
-    np.savetxt("matrices/interest_points/image_points/right", calibrate_single(right_background))
+    np.savetxt("matrices/interest_points/image_points/left", calibrate_single(left_background.copy()))
+    np.savetxt("matrices/interest_points/image_points/right", calibrate_single(right_background.copy()))
 
 
 def get_interest_points():

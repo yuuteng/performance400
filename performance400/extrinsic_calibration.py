@@ -4,8 +4,8 @@ import numpy as np
 
 def calibrate(left_background, right_background, left_interest_points, right_interest_points,
               intrinsic_parameters):
-    left_image_points, left_object_points = calibrate_single(left_background, left_interest_points, 40)
-    right_image_points, right_object_points = calibrate_single(right_background, right_interest_points, 40)
+    left_image_points, left_object_points = calibrate_single(left_background, left_interest_points, 400)
+    right_image_points, right_object_points = calibrate_single(right_background, right_interest_points, 400)
 
     # on converti nos lites au bon format pour leur utilisation dans calibrateCamera de cv2
     left_object_points = np.array(left_object_points, 'float32')
@@ -40,16 +40,16 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     extrinsic_right_rotation_vector = extrinsic_right_rotation_vectors[0]
     extrinsic_right_translation_vector = extrinsic_right_translation_vectors[0]
 
-    np.save('matrices/camera_matrix/extrinsic/left', extrinsic_left_camera_matrix)
-    np.save('matrices/distortion_vectors/extrinsic/left',
-            extrinsic_left_distortion_vector)
-    np.save('matrices/rotation_vectors/left', extrinsic_left_rotation_vector)
-    np.save('matrices/translation_vectors/left', extrinsic_left_translation_vector)
-    np.save('matrices/camera_matrix/extrinsic/right', extrinsic_right_camera_matrix)
-    np.save('matrices/distortion_vectors/extrinsic/right',
-            extrinsic_right_distortion_vector)
-    np.save('matrices/rotation_vectors/right', extrinsic_right_rotation_vector)
-    np.save('matrices/translation_vectors/right', extrinsic_right_translation_vector)
+    np.savetxt('matrices/camera_matrices/extrinsic/left', extrinsic_left_camera_matrix)
+    np.savetxt('matrices/distortion_vectors/extrinsic/left',
+               extrinsic_left_distortion_vector)
+    np.savetxt('matrices/rotation_vectors/left', extrinsic_left_rotation_vector)
+    np.savetxt('matrices/translation_vectors/left', extrinsic_left_translation_vector)
+    np.savetxt('matrices/camera_matrices/extrinsic/right', extrinsic_right_camera_matrix)
+    np.savetxt('matrices/distortion_vectors/extrinsic/right',
+               extrinsic_right_distortion_vector)
+    np.savetxt('matrices/rotation_vectors/right', extrinsic_right_rotation_vector)
+    np.savetxt('matrices/translation_vectors/right', extrinsic_right_translation_vector)
 
 
 def calibrate_single(image, interest_points, sensitivity):
@@ -59,7 +59,8 @@ def calibrate_single(image, interest_points, sensitivity):
     removed = 0
     for j in range(len(image_points)):
         x, y = image_points[j]
-
+        x = int(x)
+        y = int(y)
         sub_image = image[y - sensitivity: y + sensitivity, x - sensitivity: x + sensitivity]
         gray = cv.cvtColor(sub_image, cv.COLOR_BGR2GRAY)
 
@@ -97,7 +98,7 @@ def calibrate_single(image, interest_points, sensitivity):
             if test:
                 break
         else:
-            calibrated_interest_points[1].pop(j - removed)
+            np.delete(calibrated_interest_points[1], j - removed, axis=0)
             removed += 1
             cv.imshow(name, sub_image)
             if cv.waitKey(0) == ord('q'):
@@ -119,12 +120,12 @@ def draw_keypoints(image, keypoints, current):
 
 def get_extrinsic_parameters(right_camera):
     if right_camera:
-        extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/right')
+        extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrices/extrinsic/right')
         extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/right')
         extrinsic_rotation_vector = np.loadtxt('matrices/rotation_vectors/right')
         extrinsic_translation_vector = np.loadtxt('matrices/translation_vectors/right')
     else:
-        extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/left')
+        extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrices/extrinsic/left')
         extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/left')
         extrinsic_rotation_vector = np.loadtxt('matrices/rotation_vectors/left')
         extrinsic_translation_vector = np.loadtxt('matrices/translation_vectors/left')
@@ -136,13 +137,8 @@ def draw_axes(image, right_camera):
     extrinsic_camera_matrix, extrinsic_distortion_vector, extrinsic_rotation_vector, extrinsic_translation_vector \
         = get_extrinsic_parameters(right_camera)
 
-    prefix = "right" if right_camera else "left"
-
-    image = cv.drawFrameAxes(image, extrinsic_camera_matrix, extrinsic_distortion_vector, extrinsic_rotation_vector,
-                             extrinsic_translation_vector, 1)
-    cv.namedWindow(prefix + "axes", image)
-    cv.imshow(prefix + "axes", image)
-    cv.waitKey(0)
+    cv.drawFrameAxes(image, extrinsic_camera_matrix, extrinsic_distortion_vector, extrinsic_rotation_vector,
+                     extrinsic_translation_vector, 1)
 
 
 def get_3d_coords(left_two_d_coords, right_two_d_coords):
@@ -153,8 +149,8 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     extrinsic_right_camera_matrix, extrinsic_right_distortion_vector, extrinsic_right_rotation_vector, \
     extrinsic_right_translation_vector = get_extrinsic_parameters(True)
 
-    left_rotation_matrix = cv.Rodrigues(extrinsic_left_rotation_vector)
-    right_rotation_matrix = cv.Rodrigues(extrinsic_right_rotation_vector)
+    left_rotation_matrix, _ = cv.Rodrigues(extrinsic_left_rotation_vector)
+    right_rotation_matrix, _ = cv.Rodrigues(extrinsic_right_rotation_vector)
 
     extrinsic_left_translation_vector = np.array([extrinsic_left_translation_vector])
     extrinsic_right_translation_vector = np.array([extrinsic_right_translation_vector])
@@ -192,7 +188,6 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     for x in ind_fail:
         points_3d_bis = np.append(np.append(points_3d_bis[:x], [[1e17, 1e17, 1e17]], axis=0),
                                   points_3d_bis[x:], axis=0)
-
     return points_3d_bis
 
 
@@ -200,7 +195,7 @@ def get_positions_fails(left_two_d_coords, right_two_d_coords):
     # retourne les indices des positions où on a eu une erreur de pointage automatique du coureur
     ind_fails = []
     for n in range(np.shape(left_two_d_coords)[0]):
-        if abs(left_two_d_coords[n].any()) > 1e16 or abs(right_two_d_coords[n].any()) > 1e16:
+        if abs(left_two_d_coords[n][0]) > 1e16 or abs(right_two_d_coords[n][0]) > 1e16:
             ind_fails.append(n)
 
     return ind_fails

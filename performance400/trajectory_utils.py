@@ -79,10 +79,10 @@ def get_camera_trajectory(video):
     return trajectory
 
 
-def draw_trajectory(background, trajectory, right_camera, extrinsic_parameters):
+def draw_trajectory(background, trajectory, extrinsic_parameters):
     extrinsic_camera_matrix, extrinsic_distortion_vector, extrinsic_rotation_vector, \
     extrinsic_translation_vector = extrinsic_parameters
-
+    trajectory = np.array(trajectory, 'float32')
     image_points, _ = cv.projectPoints(trajectory, extrinsic_rotation_vector, extrinsic_translation_vector,
                                        extrinsic_camera_matrix, extrinsic_distortion_vector)
 
