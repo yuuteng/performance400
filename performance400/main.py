@@ -5,8 +5,8 @@ from matplotlib import pyplot
 from performance400 import intrinsic_pre_autocalibration, extrinsic_pre_calibration, extrinsic_calibration, \
     trajectory_utils, speed_utils
 
-EXTRACT_MIRE = True
-INTRINSIC_CALIBRATION = False
+EXTRACT_MIRE = False
+INTRINSIC_CALIBRATION = True
 PRE_EXTRINSIC_CALIBRATION = False
 MAIN_RESOLUTION = False
 
@@ -15,7 +15,7 @@ REFRESH_RATE = 30
 
 if EXTRACT_MIRE:
     left_mire = cv.VideoCapture("videos/mires/left_mire.MP4")
-    right_mire = cv.VideoCapture("videos/mires/right_mire2.MP4")
+    right_mire = cv.VideoCapture("videos/mires/right_mire.mkv")
     intrinsic_pre_autocalibration.extract_targets(left_mire, 50, False)
     intrinsic_pre_autocalibration.extract_targets(right_mire, 50, True)
 
