@@ -13,7 +13,7 @@ REFRESH_RATE = 59.94
 
 if EXTRACT_MIRE:
     left_mire = cv.VideoCapture("videos/mires/left_mire.MP4")
-    right_mire = cv.VideoCapture("videos/mires/right_mire.MP4")
+    right_mire = cv.VideoCapture("videos/mires/right_mire.mkv")
     intrinsic_pre_autocalibration.extract_targets(left_mire, 50, False)
     intrinsic_pre_autocalibration.extract_targets(right_mire, 50, True)
 
@@ -69,3 +69,4 @@ if (not EXTRACT_MIRE) and (not INTRINSIC_CALIBRATION):
     pyplot.ylabel("Vitesse (m/s)")
     pyplot.plot(index_speed, speed_profile)
     pyplot.show()
+

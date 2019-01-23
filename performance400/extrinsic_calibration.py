@@ -31,7 +31,7 @@ def calibrate(left_background, right_background, left_interest_points, right_int
 
     # on se sert des parametres intrinsèques calculés au préalables pour affiner la determination des paramètres 
     # extrinsèques 
-    cali_flag = cv.CALIB_FIX_INTRINSIC | cv.CALIB_CB_NORMALIZE_IMAGE | cv.CALIB_USE_INTRINSIC_GUESS
+    cali_flag = cv.CALIB_FIX_INTRINSIC | cv.CALIB_CB_NORMALIZE_IMAGE
 
     # print(left_object_points)
     # print(left_object_points.shape)
@@ -104,10 +104,10 @@ def calibrate_single(image, interest_points, sensitivity):
                     calibrated_interest_points[1] = np.delete(calibrated_interest_points[1], j - removed, axis=0)
                     removed += 1
                     break
-                elif key == 81:  # left
+                elif key == 81 or key == ord('a'):  # left
                     current -= 1
                     current %= len(keypoints)
-                elif key == 83:  # right
+                elif key == 83 or key == ord('e'):  # right
                     current += 1
                     current %= len(keypoints)
 
