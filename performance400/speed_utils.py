@@ -1,6 +1,8 @@
 import numpy as np
 import math as m
 import scipy.signal
+import matplotlib as pl
+import time
 
 
 def get_speed_profiles(trajectory, refresh_rate, windows_size_for_mean=6, savgol1=13, savgol2=7, medfilt=11):
@@ -25,7 +27,7 @@ def get_speed_profiles(trajectory, refresh_rate, windows_size_for_mean=6, savgol
                                                   range(param, len(norm_speed_XY) - param)] + norm_speed_XY[len(
         norm_speed_XY) - param:]
 
-    return norm_speed_XY, norm_speed_XY_mean, norm_speed_XY_Medfilt, norm_speed_XY_SavFil
+    return norm_speed_XY, norm_speed_XY_mean, norm_speed_XY_Medfilt, norm_speed_XY_SavFil,index_speed
 
 
 def get_speed_raw_profile(trajectory, refresh_rate):
@@ -43,4 +45,31 @@ def get_speed_raw_profile(trajectory, refresh_rate):
 
     norm_speed_XY = [m.sqrt(speedX[i] ** 2 + speedY[i] ** 2) for i in range(len(speedY))]
 
-    return norm_speed_XY
+    return norm_speed_XY,index_speed
+
+def export_speed_profiles(trajectory, refres_rate):
+    norm_speed_XY, norm_speed_XY_mean, norm_speed_XY_Medfilt, norm_speed_XY_SavFil, index_speed=get_speed_profiles(trajectory,refres_rate)
+    pl.figure()
+    pl.plot(index_speed, norm_speed_XY)
+    pl.savefig('export/Profil_brut_' + str(time.gmtime().tm_hour) + 'h_' + str(time.gmtime().tm_min) + 'min_' + str(
+        time.gmtime().tm_sec) + 'sec_' +
+               str(time.gmtime().tm_mday) + '-' + str(time.gmtime().tm_mon) + '-' + str(time.gmtime().tm_year) + '.png')
+    pl.close()
+    pl.figure()
+    pl.plot(index_speed, norm_speed_XY_Medfilt)
+    pl.savefig('export/Profil_median_' + str(time.gmtime().tm_hour) + 'h_' + str(time.gmtime().tm_min) + 'min_' + str(
+        time.gmtime().tm_sec) + 'sec_' +
+               str(time.gmtime().tm_mday) + '-' + str(time.gmtime().tm_mon) + '-' + str(time.gmtime().tm_year) + '.png')
+    pl.close()
+    pl.figure()
+    pl.plot(index_speed, norm_speed_XY_SavFil)
+    pl.savefig('export/Profil_filtreSV_' + str(time.gmtime().tm_hour) + 'h_' + str(time.gmtime().tm_min) + 'min_' + str(
+        time.gmtime().tm_sec) + 'sec_' +
+               str(time.gmtime().tm_mday) + '-' + str(time.gmtime().tm_mon) + '-' + str(time.gmtime().tm_year) + '.png')
+    pl.close()
+    pl.figure()
+    pl.plot(index_speed, norm_speed_XY_mean)
+    pl.savefig('export/Profil_moyen_' + str(time.gmtime().tm_hour) + 'h_' + str(time.gmtime().tm_min) + 'min_' + str(
+        time.gmtime().tm_sec) + 'sec_' +
+               str(time.gmtime().tm_mday) + '-' + str(time.gmtime().tm_mon) + '-' + str(time.gmtime().tm_year) + '.png')
+    pl.close()
