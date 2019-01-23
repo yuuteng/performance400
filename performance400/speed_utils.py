@@ -1,7 +1,7 @@
 import numpy as np
 import math as m
 import scipy.signal
-import matplotlib as pl
+import matplotlib.pyplot as pl
 import time
 
 
