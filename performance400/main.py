@@ -5,7 +5,9 @@ from matplotlib import pyplot
 from performance400 import intrinsic_pre_autocalibration, extrinsic_pre_calibration, extrinsic_calibration, \
     trajectory_utils, speed_utils
 
-PRE_PROCESS = True
+INTRINSIC_CALIBRATION = False
+PRE_EXTRINSIC_CALIBRATION = True
+
 REFRESH_RATE = 30
 
 left_video = cv.VideoCapture("videos/runway/left_run.mkv")
@@ -13,11 +15,12 @@ right_video = cv.VideoCapture("videos/runway/right_run.mkv")
 left_check, left_background = left_video.read()
 right_check, right_background = right_video.read()
 
-if PRE_PROCESS:
+if INTRINSIC_CALIBRATION:
     left_targets = glob.glob("images/targets/left/*.jpg")
     right_targets = glob.glob("images/targets/right/*.jpg")
-    # intrinsic_pre_autocalibration.autocalibrate(left_targets, right_targets, 10, 7)
+    intrinsic_pre_autocalibration.autocalibrate(left_targets, right_targets, 10, 7)
 
+if PRE_EXTRINSIC_CALIBRATION:
     left_object_points = np.loadtxt("matrices/points/object_points/left")
     right_object_points = np.loadtxt("matrices/points/object_points/right")
     extrinsic_pre_calibration.calibrate(left_background, right_background,

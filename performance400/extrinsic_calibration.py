@@ -40,16 +40,16 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     extrinsic_right_rotation_vector = extrinsic_right_rotation_vectors[0]
     extrinsic_right_translation_vector = extrinsic_right_translation_vectors[0]
 
-    np.save('matrices/camera_matrix/extrinsic/extrinsic_left_camera_matrix', extrinsic_left_camera_matrix)
-    np.save('matrices/distortion_vectors/extrinsic/extrinsic_left_distortion_vector',
+    np.save('matrices/camera_matrix/extrinsic/left', extrinsic_left_camera_matrix)
+    np.save('matrices/distortion_vectors/extrinsic/left',
             extrinsic_left_distortion_vector)
-    np.save('matrices/rotation_vector/extrinsic_left_rotation_vector', extrinsic_left_rotation_vector)
-    np.save('matrices/translation_vector/extrinsic_left_translation_vector', extrinsic_left_translation_vector)
-    np.save('matrices/camera_matrix/extrinsic/extrinsic_right_camera_matrix', extrinsic_right_camera_matrix)
-    np.save('matrices/distortion_vectors/extrinsic/extrinsic_right_distortion_vector',
+    np.save('matrices/rotation_vectors/left', extrinsic_left_rotation_vector)
+    np.save('matrices/translation_vectors/left', extrinsic_left_translation_vector)
+    np.save('matrices/camera_matrix/extrinsic/right', extrinsic_right_camera_matrix)
+    np.save('matrices/distortion_vectors/extrinsic/right',
             extrinsic_right_distortion_vector)
-    np.save('matrices/rotation_vector/extrinsic_right_rotation_vector', extrinsic_right_rotation_vector)
-    np.save('matrices/translation_vector/extrinsic_right_translation_vector', extrinsic_right_translation_vector)
+    np.save('matrices/rotation_vectors/right', extrinsic_right_rotation_vector)
+    np.save('matrices/translation_vectors/right', extrinsic_right_translation_vector)
 
 
 def calibrate_single(image, interest_points, sensitivity):
@@ -119,17 +119,15 @@ def draw_keypoints(image, keypoints, current):
 
 def get_extrinsic_parameters(right_camera):
     if right_camera:
-        extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/extrinsic_right_camera_matrix')
-        extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/'
-                                                 'extrinsic_right_distortion_vector')
-        extrinsic_rotation_vector = np.loadtxt('matrices/rotation_vector/extrinsic_right_rotation_vector')
-        extrinsic_translation_vector = np.loadtxt('matrices/translation_vector/extrinsic_right_translation_vector')
+        extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/right')
+        extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/right')
+        extrinsic_rotation_vector = np.loadtxt('matrices/rotation_vectors/right')
+        extrinsic_translation_vector = np.loadtxt('matrices/translation_vectors/right')
     else:
-        extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/extrinsic_left_camera_matrix')
-        extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/'
-                                                 'extrinsic_left_distortion_vector')
-        extrinsic_rotation_vector = np.loadtxt('matrices/rotation_vector/extrinsic_left_rotation_vector')
-        extrinsic_translation_vector = np.loadtxt('matrices/translation_vector/extrinsic_left_translation_vector')
+        extrinsic_camera_matrix = np.loadtxt('matrices/camera_matrix/extrinsic/left')
+        extrinsic_distortion_vector = np.loadtxt('matrices/distortion_vectors/extrinsic/left')
+        extrinsic_rotation_vector = np.loadtxt('matrices/rotation_vectors/left')
+        extrinsic_translation_vector = np.loadtxt('matrices/translation_vectors/left')
 
     return extrinsic_camera_matrix, extrinsic_distortion_vector, extrinsic_rotation_vector, extrinsic_translation_vector
 
@@ -148,7 +146,7 @@ def draw_axes(image, right_camera):
 
 
 def get_3d_coords(left_two_d_coords, right_two_d_coords):
-    # left_two_d_coords et right_two_d_coords doivent être des vecteurs N*2 mais N peut être egal à 1
+    # left_two_d_coords et right_two_d_coords doivent être des vecteurs N-lignes*2-colonnes mais N peut être egal à 1
     extrinsic_left_camera_matrix, extrinsic_left_distortion_vector, extrinsic_left_rotation_vector, \
     extrinsic_left_translation_vector = get_extrinsic_parameters(False)
 
