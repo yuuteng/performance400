@@ -118,7 +118,7 @@ LAST_FRAME_INDEX = int(video.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
 frame_width = int(video.get(3))
 frame_height = int(video.get(4))
 
-video_save = out = cv2.VideoWriter('videos/Results/motion_detection.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+video_save = cv2.VideoWriter('motion_detection.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
                                    10, (frame_width, frame_height))
 
 background = None

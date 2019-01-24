@@ -1,5 +1,7 @@
 import cv2 as cv
 import numpy as np
+import scipy
+
 
 
 def calibrate(left_background, right_background, left_interest_points, right_interest_points,

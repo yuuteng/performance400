@@ -19,6 +19,10 @@ if EXTRACT_MIRE:
 
 left_video = cv.VideoCapture("videos/runway/left_run_course2.mkv")
 right_video = cv.VideoCapture("videos/runway/right_run_course2.mkv")
+video_save_gauche = cv.VideoWriter('motion_detection_gauche.avi', cv.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                            10, (3840, 2160))
+video_save_droite = cv.VideoWriter('motion_detection_droite.avi', cv.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+                            10, (3840, 2160))
 left_check, left_background = left_video.read()
 right_check, right_background = right_video.read()
 
@@ -40,11 +44,16 @@ if (not EXTRACT_MIRE) and (not INTRINSIC_CALIBRATION):
     left_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(False)
     right_extrinsic_parameters = extrinsic_calibration.get_extrinsic_parameters(True)
 
-    trajectory = trajectory_utils.get_trajectory(left_video, right_video, left_lower_bound=(0, 1080),
+    trajectory = trajectory_utils.get_trajectory(left_video, right_video, video_save_gauche, video_save_droite, left_lower_bound=(0, 1080),
                                                  left_upper_bound=(0, 0), right_lower_bound=(1920, 1080),
                                                  right_upper_bound=(1920, 0))
+    video_save_gauche.release()
+    video_save_droite.release()
+    
+
 
     trajectory_utils.draw_trajectory(left_background, trajectory, left_extrinsic_parameters)
+
     trajectory_utils.draw_trajectory(right_background, trajectory, right_extrinsic_parameters)
     lop = np.loadtxt("matrices/interest_points/object_points/left")
     rop = np.loadtxt("matrices/interest_points/object_points/right")
@@ -52,7 +61,6 @@ if (not EXTRACT_MIRE) and (not INTRINSIC_CALIBRATION):
     trajectory_utils.draw_trajectory(right_background, rop, right_extrinsic_parameters)
     extrinsic_calibration.draw_axes(left_background, False)
     extrinsic_calibration.draw_axes(right_background, True)
-
 
     cv.namedWindow("Trajectoire de gauche", cv.WINDOW_NORMAL)
     cv.namedWindow("Trajectoire de droite", cv.WINDOW_NORMAL)

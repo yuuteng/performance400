@@ -8,10 +8,10 @@ from performance400 import extrinsic_calibration
 DETECTION_THRESHOLD = 15
 MIN_CONTOUR_AREA = 50
 GAUSSIAN_BLUR = 25
-NUMBER_OF_DILATATION = 2A
+NUMBER_OF_DILATATION = 2
 
 
-def get_trajectory(left_video, right_video, left_lower_bound=(0, 0), left_upper_bound=(3840, 2160),
+def get_trajectory(left_video, right_video, video_save_gauche, video_save_droite, left_lower_bound=(0, 0), left_upper_bound=(3840, 2160),
                    right_lower_bound=(0, 0), right_upper_bound=(3840, 2160)):
     """
     Transforms the two trajectories in the camera coords
@@ -23,12 +23,12 @@ def get_trajectory(left_video, right_video, left_lower_bound=(0, 0), left_upper_
     :param right_lower_bound:
     :param right_upper_bound:
     """
-    left_camera_trajectory = get_camera_trajectory(left_video, left_lower_bound, left_upper_bound)
-    right_camera_trajectory = get_camera_trajectory(right_video, right_lower_bound, right_upper_bound)
+    left_camera_trajectory = get_camera_trajectory(left_video, video_save_gauche, left_lower_bound, left_upper_bound)
+    right_camera_trajectory = get_camera_trajectory(right_video, video_save_droite, right_lower_bound, right_upper_bound)
     return extrinsic_calibration.get_3d_coords(left_camera_trajectory, right_camera_trajectory)
 
 
-def get_camera_trajectory(video, lower_bound, upper_bound):
+def get_camera_trajectory(video, video_save, lower_bound, upper_bound):
     """
     Get the trajectory of the runner in the camera coords
     :param video:
@@ -81,6 +81,8 @@ def get_camera_trajectory(video, lower_bound, upper_bound):
 
         cv.namedWindow("Color Frame", cv.WINDOW_NORMAL)
         cv.imshow("Color Frame", frame)
+        print(frame.shape)
+        video_save.write(frame)
 
         key = cv.waitKey(1)
 
