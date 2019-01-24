@@ -41,11 +41,13 @@ def autocalibrate(left_targets, right_targets, width, height):
             cv2.imshow("mire cali gauche", img)
             cv2.waitKey(0)
 
+    cali_flag =  cv2.CALIB_CB_NORMALIZE_IMAGE | cv2.CALIB_TILTED_MODEL | cv2.CALIB_THIN_PRISM_MODEL
+
     # calcul des paramètres intrinsèques à partir des points trouvés
     (_, intrinsic_left_camera_matrix, intrinsic_left_distortion_vector, _, _) = cv2.calibrateCamera(object_points,
                                                                                                     image_points,
                                                                                                     gray.shape[::-1],
-                                                                                                    None, None)
+                                                                                                    None, None, flags=cali_flag)
     # Même traitement pour la caméra de droite
     object_point = np.zeros((width * height, 3), np.float32)
     object_point[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)

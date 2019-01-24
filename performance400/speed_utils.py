@@ -58,14 +58,14 @@ def get_speed_raw_profile(trajectory, refresh_rate):
 
     for i in range(len(trajectory) - 1):
         if (m.fsum(trajectory[i]) < 1e17) and (m.fsum(trajectory[i + 1]) < 1e17):  # only take true consecutive points
-            speedX.append((trajectory[i + 1][0] - trajectory[i][0]) / refresh_rate)
-            speedY.append((trajectory[i + 1][1] - trajectory[i][1]) / refresh_rate)
-            speedZ.append((trajectory[i + 1][2] - trajectory[i][2]) / refresh_rate)
+            speedX.append((trajectory[i + 1][0] - trajectory[i][0]) * refresh_rate)
+            speedY.append((trajectory[i + 1][1] - trajectory[i][1]) * refresh_rate)
+            speedZ.append((trajectory[i + 1][2] - trajectory[i][2]) * refresh_rate)
             index_speed.append(i)
 
     norm_speed_XY = [m.sqrt(speedX[i] ** 2 + speedY[i] ** 2) for i in range(len(speedY))]
 
-    return norm_speed_XY,index_speed
+    return norm_speed_XY, index_speed
 
 def export_speed_profiles(trajectory, refres_rate):
     """

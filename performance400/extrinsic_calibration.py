@@ -78,6 +78,7 @@ def calibrate_single(image, interest_points, sensitivity):
         x = int(x)
         y = int(y)
         sub_image = image.copy()[y - sensitivity: y + sensitivity, x - sensitivity: x + sensitivity]
+        sub_image = cv.threshold(sub_image, 120, 255, cv.THRESH_BINARY)[1]
         gray = cv.cvtColor(sub_image, cv.COLOR_BGR2GRAY)
 
         keypoints = orb.detect(gray, None)
@@ -191,6 +192,17 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     left_rotation_matrix, _ = cv.Rodrigues(extrinsic_left_rotation_vector)
     right_rotation_matrix, _ = cv.Rodrigues(extrinsic_right_rotation_vector)
 
+    # rvec3 = cv.Rodrigues(np.linalg.inv(left_rotation_matrix) @ right_rotation_matrix)[0]
+    # tvec3 = np.linalg.inv(left_rotation_matrix) @ extrinsic_right_translation_vector - extrinsic_left_translation_vector
+    #
+    # R, _ = cv.Rodrigues(rvec3)
+    #
+    # R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv.stereoRectify(extrinsic_left_camera_matrix,
+    #                                                                  extrinsic_left_distortion_vector,
+    #                                                                  extrinsic_right_camera_matrix,
+    #                                                                  extrinsic_right_distortion_vector,
+    #                                                                  (1920, 1080), R, tvec3)
+
     extrinsic_left_translation_vector = np.array([extrinsic_left_translation_vector])
     extrinsic_right_translation_vector = np.array([extrinsic_right_translation_vector])
 
@@ -205,13 +217,34 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     left_two_d_coords, right_two_d_coords = delete_positions_fails(left_two_d_coords, right_two_d_coords, ind_fail)
 
     # Test UndistortPoits
-    # left_two_d_coords = cv2.undistortPoints(left_two_d_coords, extrinsic_left_camera_matrix,
+    # lc = []
+    # rc = []
+    # for i in left_two_d_coords:
+    #     lc.append([i])
+    # lc = np.array(lc)
+    #
+    # for i in right_two_d_coords:
+    #     rc.append([i])
+    # rc = np.array(lc)
+    #
+    # left_two_d_coords = cv.undistortPoints(lc, extrinsic_left_camera_matrix,
     #                                        extrinsic_left_distortion_vector)
-    # right_two_d_coords = cv2.undistortPoints(right_two_d_coords, extrinsic_right_camera_matrix,
-    #                                          extrinsic_right_distortion_vector)
+    #
+    # right_two_d_coords = cv.undistortPoints(rc, extrinsic_right_camera_matrix,
+    #                                         extrinsic_right_distortion_vector)
+    # left_two_d_coords_bis = []
+    # for p in left_two_d_coords:
+    #     left_two_d_coords_bis.append(p[0])
+    # left_two_d_coords_bis = np.asarray(left_two_d_coords_bis)
+    #
+    # right_two_d_coords_bis = []
+    # for p in right_two_d_coords:
+    #     right_two_d_coords_bis.append(p[0])
+    # right_two_d_coords_bis = np.asarray(right_two_d_coords_bis)
 
     #  on fait la triangulation avec les points pour lesquels les 1e17 ont etes enleves
-    points_4d = cv.triangulatePoints(projection_matrix_1, projection_matrix_2, left_two_d_coords.T,
+    points_4d = cv.triangulatePoints(projection_matrix_1, projection_matrix_2
+                                     , left_two_d_coords.T,
                                      right_two_d_coords.T)
 
     points_3d = cv.convertPointsFromHomogeneous(points_4d.T)
@@ -227,6 +260,7 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     for x in ind_fail:
         points_3d_bis = np.append(np.append(points_3d_bis[:x], [[1e17, 1e17, 1e17]], axis=0),
                                   points_3d_bis[x:], axis=0)
+    np.savetxt("points3d", points_3d_bis)
     return points_3d_bis
 
 

@@ -5,10 +5,10 @@ import math
 from matplotlib import pyplot
 from performance400 import extrinsic_calibration
 
-DETECTION_THRESHOLD = 10
+DETECTION_THRESHOLD = 15
 MIN_CONTOUR_AREA = 50
 GAUSSIAN_BLUR = 25
-NUMBER_OF_DILATATION = 2
+NUMBER_OF_DILATATION = 2A
 
 
 def get_trajectory(left_video, right_video, left_lower_bound=(0, 0), left_upper_bound=(3840, 2160),
@@ -47,7 +47,6 @@ def get_camera_trajectory(video, lower_bound, upper_bound):
 
         # On détermine leurs contours
         contours = cv.findContours(threshold_frame.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)[1]
-        remove_out_of_bounds_contours(contours, lower_bound, upper_bound)
 
         test = True
         if contours is not None:
