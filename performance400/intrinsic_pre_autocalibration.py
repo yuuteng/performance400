@@ -3,31 +3,38 @@ import numpy as np
 
 
 def autocalibrate(left_targets, right_targets, width, height):
-    # critère d'arrêt pour la recherche de mire
+    """
+
+    :param left_targets: array of images from chess board for left_camera
+    :param right_targets:
+    :param width: number of corners to be detected  on x axis
+    :param height: number of corners to be detected  on y axis
+    :return: save txt from estimated matrices
+    """
+    # stop criteria for chess board corners detection attempt
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-    # Traitement pour la camera de gauche
-    # creation artificelle des points objet de la mire
+    # left camera
+    # object points on chess board artificially created
     object_point = np.zeros((width * height, 3), np.float32)
     object_point[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
 
-    # Listes pour stocker les points objet et image que l'on parviendra à détecter
-    object_points = []  # 3d point in real world space
+    # arrays to stock detected object and image points
+    object_points = []  # 3d points in real world space
     image_points = []  # 2d points in image plane.
 
     count = 0
     gray = None
     for file_name in left_targets:
         img = cv2.imread(file_name)
-        img = cv2.threshold(img, 200, 255, cv2.THRESH_TRUNC)[1]  # si image floue on permet une detection mais moins
-        # precise
+        img = cv2.threshold(img, 200, 255, cv2.THRESH_TRUNC)[1]  # threshold for correcting blurs
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         # Find the chess board corners
         ret, corners = cv2.findChessboardCorners(gray, (width, height), None)
         print(ret)
 
-        # Si on trouve des points, on affine leur posistion et on les stock
+        # stock detected corners positions
         if ret:
             count += 1
             object_points.append(object_point)
@@ -41,12 +48,12 @@ def autocalibrate(left_targets, right_targets, width, height):
             cv2.imshow("mire cali gauche", img)
             cv2.waitKey(0)
 
-    # calcul des paramètres intrinsèques à partir des points trouvés
+    # estimate intrinsic parameters from chess board patterns
     (_, intrinsic_left_camera_matrix, intrinsic_left_distortion_vector, _, _) = cv2.calibrateCamera(object_points,
                                                                                                     image_points,
                                                                                                     gray.shape[::-1],
                                                                                                     None, None)
-    # Même traitement pour la caméra de droite
+    # same for right camera
     object_point = np.zeros((width * height, 3), np.float32)
     object_point[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
 
@@ -89,6 +96,14 @@ def autocalibrate(left_targets, right_targets, width, height):
 
 
 def extract_targets(video, nbr, right_camera):
+    """
+
+    :param video: chess board video
+    :param nbr: number of images to extract from video
+    :param right_camera: right(True) or left (False) camera
+    :return:
+    """
+    # extract nbr chess bord images from a chess board video
     prefix = 'right' if right_camera else 'left'
     video_length = int(video.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
     frame_ids = None
@@ -106,6 +121,7 @@ def extract_targets(video, nbr, right_camera):
 
 
 def get_intrinsic_parameters():
+    # load intrinsic parameters from saved txt matrices
     intrinsic_left_camera_matrix = np.loadtxt('matrices/camera_matrices/intrinsic/left')
     intrinsic_left_distortion_vector = np.loadtxt(
         'matrices/distortion_vectors/intrinsic/left')
