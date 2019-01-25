@@ -16,10 +16,9 @@ def draw_circle(event, x, y, flags, param):
 
 def calibrate_single(image):
     """
-    Manually point Points on an image
+    Interface used to save the approximate image points of the points of interest
 
     :param image: the image to be calibrate
-    :return: array with all the points
     """
     name = "Pre-calibration extrinseque"
     cv.namedWindow(name, cv.WINDOW_NORMAL)
