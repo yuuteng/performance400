@@ -32,17 +32,17 @@ def get_camera_trajectory(video, lower_bound, upper_bound):
     """
     Get the trajectory of the runner in the camera coords
     :param video:
+    :param lower_bound
+    :param upper_bound
     """
     background = None
     corners_trajectories = [[], [], [], []]  # Top left hand corner then CCW
 
     while True:
-        # On s'assure que la frame courante est bonne et nous intéresse
         check, frame = video.read()
         if not check or frame is None:
             break
 
-        # On récupère les formes en mouvement
         gray_frame, difference_frame, threshold_frame, background = get_frames(frame, background)
 
         # On détermine leurs contours
@@ -52,9 +52,6 @@ def get_camera_trajectory(video, lower_bound, upper_bound):
         test = True
         if contours is not None:
             if len(contours) > 0:
-                # On récupère la plus grande forme, et si elle est assez grande, on dessine son contour,
-                # on détermine son centre et on calcule sa trajectoire
-
                 largest_contour = get_largest_contour(contours)
 
                 if cv.contourArea(largest_contour) > MIN_CONTOUR_AREA:

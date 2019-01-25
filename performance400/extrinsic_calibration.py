@@ -18,7 +18,6 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     left_image_points, left_object_points = calibrate_single(left_background, left_interest_points, 40)
     right_image_points, right_object_points = calibrate_single(right_background, right_interest_points, 40)
 
-    # on converti nos lites au bon format pour leur utilisation dans calibrateCamera de cv2
     left_object_points = np.array(left_object_points, 'float32')
     right_object_points = np.array(right_object_points, 'float32')
     left_image_points = np.array(left_image_points, 'float32')
@@ -29,14 +28,7 @@ def calibrate(left_background, right_background, left_interest_points, right_int
     intrinsic_left_camera_matrix, intrinsic_right_camera_matrix, intrinsic_left_distortion_vector, \
     intrinsic_right_distortion_vector = intrinsic_parameters
 
-    # on se sert des parametres intrinsèques calculés au préalables pour affiner la determination des paramètres 
-    # extrinsèques 
     cali_flag = cv.CALIB_FIX_INTRINSIC | cv.CALIB_CB_NORMALIZE_IMAGE
-
-    # print(left_object_points)
-    # print(left_object_points.shape)
-    # print(left_image_points)
-    # print(left_image_points.shape)
 
     _, extrinsic_left_camera_matrix, extrinsic_left_distortion_vector, extrinsic_left_rotation_vectors, \
     extrinsic_left_translation_vectors = cv.calibrateCamera([left_object_points], [left_image_points], left_size,
@@ -49,8 +41,7 @@ def calibrate(left_background, right_background, left_interest_points, right_int
                                                              intrinsic_right_camera_matrix,
                                                              intrinsic_right_distortion_vector,
                                                              flags=cali_flag)
-    # on extrain le vecteur qui nous interesse car calibrateCamera nous renvoie des vecteurs de vecteurs avec 1 seul 
-    # vecteur dedans 
+
     extrinsic_left_rotation_vector = extrinsic_left_rotation_vectors[0]
     extrinsic_left_translation_vector = extrinsic_left_translation_vectors[0]
     extrinsic_right_rotation_vector = extrinsic_right_rotation_vectors[0]
@@ -69,6 +60,14 @@ def calibrate(left_background, right_background, left_interest_points, right_int
 
 
 def calibrate_single(image, interest_points, sensitivity):
+    """
+    Used to manually calibrate a camera based on points of interest
+    If we set a camera approximately on a known spot, this function launches an interface to look each of those points
+     of interest and uses a human interaction to precisely select the object point
+    :param image:
+    :param interest_points:
+    :param sensitivity:
+    """
     image_points, object_points = interest_points
     orb = cv.ORB_create(nfeatures=10, scoreType=cv.ORB_HARRIS_SCORE)
     calibrated_interest_points = [[], object_points.copy()]
@@ -126,6 +125,12 @@ def calibrate_single(image, interest_points, sensitivity):
 
 
 def draw_keypoints(image, keypoints, current):
+    """
+    Draw a keypoint on a frame
+    :param image:
+    :param keypoints:
+    :param current:
+    """
     for k in range(len(keypoints) - 1, -1, -1):
         keypoint = keypoints[k]
         color = (0, 0, 255)
@@ -181,7 +186,6 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     :param right_two_d_coords:
     :return:
     """
-    # left_two_d_coords et right_two_d_coords doivent être des vecteurs N-lignes*2-colonnes mais N peut être egal à 1
     extrinsic_left_camera_matrix, extrinsic_left_distortion_vector, extrinsic_left_rotation_vector, \
     extrinsic_left_translation_vector = get_extrinsic_parameters(False)
 
@@ -200,30 +204,19 @@ def get_3d_coords(left_two_d_coords, right_two_d_coords):
     projection_matrix_1 = extrinsic_left_camera_matrix @ m1
     projection_matrix_2 = extrinsic_right_camera_matrix @ m2
 
-    # on enleve les 1e17 qui ont ete mis au endroits où on a eu des erreurs de pointage du coureur
     ind_fail = get_positions_fails(left_two_d_coords, right_two_d_coords)
     left_two_d_coords, right_two_d_coords = delete_positions_fails(left_two_d_coords, right_two_d_coords, ind_fail)
 
-    # Test UndistortPoits
-    # left_two_d_coords = cv2.undistortPoints(left_two_d_coords, extrinsic_left_camera_matrix,
-    #                                        extrinsic_left_distortion_vector)
-    # right_two_d_coords = cv2.undistortPoints(right_two_d_coords, extrinsic_right_camera_matrix,
-    #                                          extrinsic_right_distortion_vector)
-
-    #  on fait la triangulation avec les points pour lesquels les 1e17 ont etes enleves
     points_4d = cv.triangulatePoints(projection_matrix_1, projection_matrix_2, left_two_d_coords.T,
                                      right_two_d_coords.T)
 
     points_3d = cv.convertPointsFromHomogeneous(points_4d.T)
 
-    # on converti le format de point_3d vers un format N*3 plus facile à utiliser
     points_3d_bis = []
     for p in points_3d:
         points_3d_bis.append(p[0])
     points_3d_bis = np.asarray(points_3d_bis)
 
-    # on replace les 1e17 aux positions initiales pour ne pas perdre d'information sur les frames pour synchroniser
-    # les detections
     for x in ind_fail:
         points_3d_bis = np.append(np.append(points_3d_bis[:x], [[1e17, 1e17, 1e17]], axis=0),
                                   points_3d_bis[x:], axis=0)
@@ -257,7 +250,6 @@ def delete_positions_fails(left_two_d_coords, right_two_d_coords, ind_fails):
     :param ind_fails:
     :return:
     """
-    # supprime les points où on a repéré une erreur
     count = 0
     for k in ind_fails:
         left_two_d_coords = np.delete(left_two_d_coords, (k - count), axis=0)
