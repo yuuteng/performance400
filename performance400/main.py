@@ -1,7 +1,9 @@
 import glob
+
 import cv2 as cv
 import numpy as np
 from matplotlib import pyplot
+
 from performance400 import intrinsic_pre_autocalibration, extrinsic_pre_calibration, extrinsic_calibration, \
     trajectory_utils, speed_utils
 

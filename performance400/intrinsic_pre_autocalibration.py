@@ -114,8 +114,8 @@ def extract_targets(video, nbr, right_camera):
         success, image = video.read()
         while success:
             if count in frame_ids:
-                print('ok '+prefix, count)
-                cv2.imwrite('images/targets/'+prefix+'/'+str(round(count*nbr/video_length))+'.jpg', image)
+                print('ok ' + prefix, count)
+                cv2.imwrite('images/targets/' + prefix + '/' + str(round(count * nbr / video_length)) + '.jpg', image)
             success, image = video.read()
             count += 1
 

@@ -56,7 +56,9 @@ def get_interest_points():
 
     """
     left_interest_points = (
-        np.loadtxt("matrices/interest_points/image_points/left"), np.loadtxt("matrices/interest_points/object_points/left"))
+        np.loadtxt("matrices/interest_points/image_points/left"),
+        np.loadtxt("matrices/interest_points/object_points/left"))
     right_interest_points = (
-        np.loadtxt("matrices/interest_points/image_points/right"), np.loadtxt("matrices/interest_points/object_points/right"))
+        np.loadtxt("matrices/interest_points/image_points/right"),
+        np.loadtxt("matrices/interest_points/object_points/right"))
     return left_interest_points, right_interest_points
