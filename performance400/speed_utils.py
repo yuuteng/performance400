@@ -22,7 +22,6 @@ def get_speed_profiles(trajectory, refresh_rate, windows_size_for_average=6, sav
     """
     param = int(windows_size_for_average / 2)
     speed_2d, speed_indices = differentiate(trajectory, refresh_rate)
-
     speed_2d_savgol_filtered = scipy.signal.savgol_filter(speed_2d, savgol1, savgol2)
     speed_2d_median_filtered = scipy.signal.medfilt(speed_2d, medfilt)
 
@@ -42,8 +41,13 @@ def get_speed_raw_profile(trajectory, refresh_rate):
     """
     return differentiate(trajectory, refresh_rate)
 
-
 def differentiate(trajectory, refresh_rate):
+    """
+    Returns a euler approximation of the differentiation
+    FIXME: whether used by calculating with each components or using linalg, the results are slightly different
+    :param trajectory:
+    :param refresh_rate:
+    """
     speed_profile_x = []
     speed_profile_y = []
     speed_profile_z = []
